@@ -7,3 +7,4 @@
 | Phase | Topic      | Status | Write-up                                              |
 | ----- | ---------- | ------ | ----------------------------------------------------- |
 | 0     | Foundation | Done   | [phase-00-foundation.md](phases/phase-00-foundation.md) |
+| 1     | Prompt engineering | Done | [phase-01-prompt-engineering.md](phases/phase-01-prompt-engineering.md) |

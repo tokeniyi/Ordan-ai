@@ -26,11 +26,13 @@ The goal is not to build another chatbot. The chat is the test bench: each phase
 - Reasoning display, when the model shares its thinking
 - Markdown, tables and highlighted code blocks
 - Model picker, with copy and retry on each reply
+- Versioned prompt library with a prompt picker: zero-shot, structured, few-shot and step by step
+- Side-by-side prompt comparison
+- Follow-up suggestions, generated as structured output
 - Light and dark themes
 
 ### Upcoming features
 
-- Prompt engineering experiments
 - Saved conversation history
 - Basic RAG
 - Hybrid search
@@ -85,7 +87,10 @@ app/              Routes only. Pages and API handlers stay thin.
 components/ui/    shadcn/ui components, added with the shadcn CLI.
 components/       App shell: header, theme.
 features/         One folder per feature. Each can be built and tested alone.
-  chat/           The chat UI, its message parts and its system prompt.
+  chat/           The chat UI and its message parts.
+  prompts/        The versioned prompt library.
+  suggestions/    Follow-up questions after each reply.
+  compare/        Side-by-side prompt comparison.
 lib/ai/           The Kilo provider and the model list.
 docs/             Architecture, roadmap, and one write-up per phase.
 ```

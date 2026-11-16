@@ -6,16 +6,20 @@ Ordan AI is one Next.js app. The code is split so that each AI concept lives in 
 
 ```
 app/
-  api/chat/route.ts     The chat endpoint. Validates the request, calls the model, streams the reply.
-  layout.tsx, page.tsx  The shell and the chat page.
+  api/chat/route.ts         The chat endpoint. Validates the request, calls the model, streams the reply.
+  api/suggestions/route.ts Returns follow-up questions for a finished reply.
+  compare/page.tsx         The compare page.
+  layout.tsx, page.tsx     The shell and the chat page.
 components/
   ui/                   shadcn/ui components. Added with the CLI, not written by hand.
 features/
   chat/
     components/         The chat thread, prompt form, model picker, message actions.
     components/parts/   One component per message part type: text, reasoning.
-    prompt.ts           The system prompt.
     types.ts            The message types shared by the route and the UI.
+  prompts/              The versioned prompt library and the prompt builder.
+  suggestions/          Follow-up questions, generated as structured output.
+  compare/              The side-by-side prompt comparison.
 lib/
   ai/provider.ts        The Kilo AI Gateway client. The only file that knows the provider.
   ai/models.ts          The models the picker offers and the route accepts.
@@ -24,9 +28,10 @@ docs/                   This folder.
 
 ## How a message flows
 
-1. `features/chat/components/chat.tsx` sends the messages and the chosen model to `/api/chat` with `useChat`.
-2. `app/api/chat/route.ts` checks the model against `lib/ai/models.ts`, validates the messages, and calls `streamText` with the model from `lib/ai/provider.ts` and the prompt from `features/chat/prompt.ts`.
+1. `features/chat/components/chat.tsx` sends the messages, the chosen model and the chosen prompt id to `/api/chat` with `useChat`.
+2. `app/api/chat/route.ts` checks the model against `lib/ai/models.ts`, validates the messages, builds the prompt with `features/prompts`, and calls `streamText` with the model from `lib/ai/provider.ts`.
 3. The reply streams back as typed parts. `chat-message.tsx` switches on the part type and renders each one with a component from `components/parts/`.
+4. When the reply finishes, `features/suggestions` asks `/api/suggestions` for follow-up questions and shows them above the input.
 
 ## Rules
 

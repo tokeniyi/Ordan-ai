@@ -9,6 +9,8 @@ const kilo = createOpenAICompatible({
   name: "kilo",
   baseURL: KILO_BASE_URL,
   apiKey: process.env.KILO_API_KEY,
+  // Send JSON schemas to the gateway, so structured output is enforced.
+  supportsStructuredOutputs: true,
 })
 
 export function hasApiKey() {

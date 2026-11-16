@@ -2,6 +2,8 @@
 
 Each phase adds one concept to the chat, measures what it changed, and ends with a write-up in [phases](phases). The order below is a suggestion. Later phases build on earlier ones, but the order can change.
 
+Phases 0 and 1 are done. See [phases](phases) for the write-ups.
+
 | Phase | Topic                  | Concepts                                                                                                         | shadcn/ui AI patterns        |
 | ----- | ---------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------- |
 | 0     | Foundation             | Streaming chat, message parts, model gateway                                                                     | Chat, Message, Reasoning     |
