@@ -16,7 +16,7 @@ The files added or changed, and how the feature connects to the chat.
 
 ## Results
 
-What was measured before and after: answer quality, cost, latency.
+What was measured before and after with `pnpm eval`: passed cases, quality, tokens, latency and cost. Link the runs in `evals/results`.
 
 ## What I learned
 

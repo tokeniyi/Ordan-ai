@@ -13,3 +13,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Read `docs/architecture.md` before adding code. Features live in `features/<name>/`, routes in `app/` stay thin, and every model call goes through `lib/ai/provider.ts`.
 - All AI UI comes from shadcn/ui and its AI Elements patterns (https://ui.shadcn.com/docs/ai-elements). Add components with `npx shadcn@latest add <name>`; do not hand-write files in `components/ui/`.
 - Each phase ends with a write-up in `docs/phases/`, started from `docs/phases/TEMPLATE.md`.
+- Measure changes that affect answers with `pnpm eval` before and after (see `docs/evals.md`), and report the numbers in the phase write-up. Run `pnpm test` for logic that does not call a model.

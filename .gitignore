@@ -151,3 +151,6 @@ vite.config.ts.timestamp-*
 # next.js
 next-env.d.ts
 *.tsbuildinfo
+
+# eval cache
+evals/.cache/

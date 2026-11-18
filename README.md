@@ -29,6 +29,7 @@ The goal is not to build another chatbot. The chat is the test bench: each phase
 - Versioned prompt library with a prompt picker: zero-shot, structured, few-shot and step by step
 - Side-by-side prompt comparison
 - Follow-up suggestions, generated as structured output
+- Evaluation framework: a test set, deterministic checks and an LLM judge, run with `pnpm eval` and shown on an `/evals` page
 - Light and dark themes
 
 ### Upcoming features
@@ -40,7 +41,6 @@ The goal is not to build another chatbot. The chat is the test bench: each phase
 - Multi-model routing
 - Agent workflows
 - Long-term memory
-- Evaluation framework
 
 The full plan, phase by phase, is in [docs/roadmap.md](docs/roadmap.md).
 
@@ -79,6 +79,8 @@ Open http://localhost:3000.
 | `pnpm typecheck` | Check types                   |
 | `pnpm lint`      | Run ESLint                    |
 | `pnpm format`    | Format the code with Prettier |
+| `pnpm test`      | Run the unit tests            |
+| `pnpm eval`      | Run the evaluation            |
 
 ## Project structure
 
@@ -91,6 +93,9 @@ features/         One folder per feature. Each can be built and tested alone.
   prompts/        The versioned prompt library.
   suggestions/    Follow-up questions after each reply.
   compare/        Side-by-side prompt comparison.
+  evals/          Test sets, scoring and the results page.
+evals/results/    Saved eval runs, as JSON and Markdown.
+scripts/          Command line tools, such as the eval runner.
 lib/ai/           The Kilo provider and the model list.
 docs/             Architecture, roadmap, and one write-up per phase.
 ```
@@ -101,6 +106,7 @@ See [docs/architecture.md](docs/architecture.md) for how the pieces fit and how 
 
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
+- [Running evals](docs/evals.md)
 - [Phases](docs/phases)
 
 ## Credits
