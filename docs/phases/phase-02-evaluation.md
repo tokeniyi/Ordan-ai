@@ -56,11 +56,27 @@ The repo now has Vitest. `pnpm test` covers the checks, the summaries, the promp
 
 ## Results
 
-Pending: the first full run on the final test set is waiting for the free-model rate limit to reset. Results will be added here and saved in `evals/results`.
+The first full run on the final test set: 20 cases, 4 prompts, `nvidia/nemotron-3-ultra-550b-a55b:free` answering and `nvidia/nemotron-3.5-super-vl:free` judging. 155 model calls were made and 5 were reused from the cache of an earlier interrupted run. There were no errors. Full results: [evals/results/2026-11-18T19-37-15-896Z.md](../../evals/results/2026-11-18T19-37-15-896Z.md).
+
+| Prompt | Passed | Quality | Checks | Correct | Relevant | Clear | Avg output tokens | Avg latency |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| structured v1 | 20/20 | 99 | 23/23 | 4.9 | 5 | 5 | 115 | 3.1s |
+| baseline v1 | 20/20 | 100 | 23/23 | 5 | 5 | 5 | 215 | 3.6s |
+| few-shot v1 | 13/20 | 89 | 19/23 | 4.95 | 4.2 | 4.25 | 218 | 4.2s |
+| step-by-step v1 | 20/20 | 100 | 23/23 | 5 | 5 | 5 | 147 | 3.5s |
+
+All runs cost $0, because every model used is free.
+
+What the numbers say:
+
+- **Structured is the best default, on cost.** It matches baseline on quality and uses 46% fewer output tokens (115 against 215), and it answers faster. On a paid model that is roughly half the output cost for the same answers. Phase 1 could only say structured answers "looked more direct". This run measures it.
+- **Few-shot is a specialist, not a default.** All 7 of its failures have the same cause: it applies its four-part tutor format to questions that need one line, such as the capital of Australia, which got an analogy and a quiz. The judge marked these down for relevance and clarity, not correctness. Its correctness score (4.95) is as high as the others. When a question named an exact format ("only JSON", "exactly 3 bullet points"), few-shot followed it.
+- **Step by step costs little here.** It is meant to add reasoning steps, but on this model it used only 147 tokens on average. The model reasons on its own before answering, and the prompt mostly changes how the answer is laid out.
+- **The judge also scores completeness under correctness.** Structured lost its one point on precision and recall. The answer was accurate but left out the trade-off between them, which the reference mentions.
 
 ## What I learned
 
-- **An easy test set measures nothing.** The first version had 14 questions, and three of the four prompts scored a perfect 100. A test set has to include questions that some prompts fail, or it cannot rank them. The six harder cases added afterwards focus on strict instructions, letter counting and false premises.
+- **An easy test set measures nothing.** The first version had 14 questions, and three of the four prompts scored a perfect 100. The six harder cases added afterwards (strict formats, letter counting, a myth to correct) did not change that: the same three prompts still pass everything. This model is strong enough that general questions cannot separate good prompts from great ones. The next test sets need to be built around a specific task, such as answering from given documents in the RAG phases, where there is more room to fail.
 - **Keyword checks fail right answers.** In the first run, the few-shot prompt "failed" the RAG question because it said "looks up documents" instead of "retrieves". The judge gave the same answer 5 out of 5. Checks are now limited to hard facts and format, and everything else goes to the judge.
 - **The judge is lenient.** In the same run the judge gave full marks for correctness to an answer with a wrong analogy: it said printers mix the three primary colours of light. A judge is a noisy instrument. Its scores are useful for comparing prompts on the same set, not as an absolute measure of truth.
 - **Two signals are better than one.** The checks and the judge disagree in useful ways. When a check fails but the judge gives a high score, the check is usually too strict. When the checks pass but the judge scores low, the answer is usually right but ignores an instruction.

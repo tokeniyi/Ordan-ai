@@ -14,7 +14,8 @@ export function SiteHeader() {
         render={<Link href="/compare" />}
         nativeButton={false}
       >
-        Compare<span className="hidden sm:inline">&nbsp;prompts</span>
+        <span className="sm:hidden">Compare</span>
+        <span className="hidden sm:inline">Compare prompts</span>
       </Button>
       <Button
         variant="ghost"
