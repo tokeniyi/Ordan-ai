@@ -10,3 +10,4 @@
 | 0     | Foundation | Done   | [phase-00-foundation.md](phases/phase-00-foundation.md) |
 | 1     | Prompt engineering | Done | [phase-01-prompt-engineering.md](phases/phase-01-prompt-engineering.md) |
 | 2     | Evaluation | Done | [phase-02-evaluation.md](phases/phase-02-evaluation.md) |
+| 3     | Conversation history | Done | [phase-03-conversation-history.md](phases/phase-03-conversation-history.md) |
