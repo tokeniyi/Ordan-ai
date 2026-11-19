@@ -3,8 +3,6 @@
 import * as React from "react"
 import { ArrowUpIcon, SquareIcon } from "lucide-react"
 
-import { type ChatModel } from "@/lib/ai/models"
-import { ModelSelect } from "@/features/chat/components/model-select"
 import {
   InputGroup,
   InputGroupAddon,
@@ -13,16 +11,13 @@ import {
 } from "@/components/ui/input-group"
 
 export function PromptForm({
-  models,
-  model,
-  onModelChange,
+  controls,
   isBusy,
   onSubmit,
   onStop,
 }: {
-  models: ChatModel[]
-  model: string
-  onModelChange: (model: string) => void
+  // Pickers shown next to the send button.
+  controls?: React.ReactNode
   isBusy: boolean
   onSubmit: (text: string) => void
   onStop: () => void
@@ -57,11 +52,7 @@ export function PromptForm({
           }}
         />
         <InputGroupAddon align="block-end">
-          <ModelSelect
-            models={models}
-            value={model}
-            onValueChange={onModelChange}
-          />
+          {controls}
           {isBusy ? (
             <InputGroupButton
               type="button"

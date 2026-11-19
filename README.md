@@ -26,11 +26,14 @@ The goal is not to build another chatbot. The chat is the test bench: each phase
 - Reasoning display, when the model shares its thinking
 - Markdown, tables and highlighted code blocks
 - Model picker, with copy and retry on each reply
+- Versioned prompt library with a prompt picker: zero-shot, structured, few-shot and step by step
+- Side-by-side prompt comparison
+- Follow-up suggestions, generated as structured output
+- Evaluation framework: a test set, deterministic checks and an LLM judge, run with `pnpm eval` and shown on an `/evals` page
 - Light and dark themes
 
 ### Upcoming features
 
-- Prompt engineering experiments
 - Saved conversation history
 - Basic RAG
 - Hybrid search
@@ -38,7 +41,6 @@ The goal is not to build another chatbot. The chat is the test bench: each phase
 - Multi-model routing
 - Agent workflows
 - Long-term memory
-- Evaluation framework
 
 The full plan, phase by phase, is in [docs/roadmap.md](docs/roadmap.md).
 
@@ -70,13 +72,18 @@ pnpm dev
 
 Open http://localhost:3000.
 
-| Command          | What it does                  |
-| ---------------- | ----------------------------- |
-| `pnpm dev`       | Start the dev server          |
-| `pnpm build`     | Build for production          |
-| `pnpm typecheck` | Check types                   |
-| `pnpm lint`      | Run ESLint                    |
-| `pnpm format`    | Format the code with Prettier |
+| Command          | What it does                                   |
+| ---------------- | ---------------------------------------------- |
+| `pnpm dev`       | Start the dev server                           |
+| `pnpm build`     | Build for production                           |
+| `pnpm typecheck` | Check types                                    |
+| `pnpm lint`      | Run ESLint                                     |
+| `pnpm format`    | Format the code with Prettier                  |
+| `pnpm test`      | Run the unit tests                             |
+| `pnpm test:e2e`  | Run the browser tests (run `pnpm build` first) |
+| `pnpm eval`      | Run the evaluation                             |
+
+CI runs lint, typecheck, unit tests, the build and the browser tests on every pull request. The browser tests mock model calls, so CI needs no API key.
 
 ## Project structure
 
@@ -85,7 +92,13 @@ app/              Routes only. Pages and API handlers stay thin.
 components/ui/    shadcn/ui components, added with the shadcn CLI.
 components/       App shell: header, theme.
 features/         One folder per feature. Each can be built and tested alone.
-  chat/           The chat UI, its message parts and its system prompt.
+  chat/           The chat UI and its message parts.
+  prompts/        The versioned prompt library.
+  suggestions/    Follow-up questions after each reply.
+  compare/        Side-by-side prompt comparison.
+  evals/          Test sets, scoring and the results page.
+evals/results/    Saved eval runs, as JSON and Markdown.
+scripts/          Command line tools, such as the eval runner.
 lib/ai/           The Kilo provider and the model list.
 docs/             Architecture, roadmap, and one write-up per phase.
 ```
@@ -96,6 +109,7 @@ See [docs/architecture.md](docs/architecture.md) for how the pieces fit and how 
 
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
+- [Running evals](docs/evals.md)
 - [Phases](docs/phases)
 
 ## Credits

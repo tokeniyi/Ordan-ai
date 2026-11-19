@@ -4,10 +4,14 @@ import { Button } from "@/components/ui/button"
 
 export function NewChatButton() {
   return (
-    // eslint-disable-next-line @next/next/no-html-link-for-pages
-    <Button variant="secondary" render={<a href="/" />} nativeButton={false}>
+    <Button
+      variant="secondary"
+      // eslint-disable-next-line @next/next/no-html-link-for-pages
+      render={<a href="/" aria-label="New chat" />}
+      nativeButton={false}
+    >
       <PlusIcon data-icon="inline-start" />
-      New Chat
+      <span className="hidden sm:inline">New Chat</span>
     </Button>
   )
 }

@@ -6,16 +6,24 @@ Ordan AI is one Next.js app. The code is split so that each AI concept lives in 
 
 ```
 app/
-  api/chat/route.ts     The chat endpoint. Validates the request, calls the model, streams the reply.
-  layout.tsx, page.tsx  The shell and the chat page.
+  api/chat/route.ts         The chat endpoint. Validates the request, calls the model, streams the reply.
+  api/suggestions/route.ts Returns follow-up questions for a finished reply.
+  compare/page.tsx         The compare page.
+  evals/                   The eval results pages, built from evals/results.
+  layout.tsx, page.tsx     The shell and the chat page.
 components/
   ui/                   shadcn/ui components. Added with the CLI, not written by hand.
 features/
   chat/
     components/         The chat thread, prompt form, model picker, message actions.
     components/parts/   One component per message part type: text, reasoning.
-    prompt.ts           The system prompt.
     types.ts            The message types shared by the route and the UI.
+  prompts/              The versioned prompt library and the prompt builder.
+  suggestions/          Follow-up questions, generated as structured output.
+  compare/              The side-by-side prompt comparison.
+  evals/                Test sets, checks, the LLM judge, the runner and the results page.
+evals/results/          Saved eval runs, as JSON and Markdown.
+scripts/eval.ts         Runs the evaluation from the command line.
 lib/
   ai/provider.ts        The Kilo AI Gateway client. The only file that knows the provider.
   ai/models.ts          The models the picker offers and the route accepts.
@@ -24,9 +32,10 @@ docs/                   This folder.
 
 ## How a message flows
 
-1. `features/chat/components/chat.tsx` sends the messages and the chosen model to `/api/chat` with `useChat`.
-2. `app/api/chat/route.ts` checks the model against `lib/ai/models.ts`, validates the messages, and calls `streamText` with the model from `lib/ai/provider.ts` and the prompt from `features/chat/prompt.ts`.
+1. `features/chat/components/chat.tsx` sends the messages, the chosen model and the chosen prompt id to `/api/chat` with `useChat`.
+2. `app/api/chat/route.ts` checks the model against `lib/ai/models.ts`, validates the messages, builds the prompt with `features/prompts`, and calls `streamText` with the model from `lib/ai/provider.ts`.
 3. The reply streams back as typed parts. `chat-message.tsx` switches on the part type and renders each one with a component from `components/parts/`.
+4. When the reply finishes, `features/suggestions` asks `/api/suggestions` for follow-up questions and shows them above the input.
 
 ## Rules
 
@@ -40,7 +49,9 @@ docs/                   This folder.
 1. Create `features/<name>/` with its own code. Server-only logic should be plain functions that can be run and tested without the UI.
 2. Connect it to the chat in `app/api/chat/route.ts`, for example by adding retrieved context to the prompt or by adding a tool.
 3. If it streams a new kind of part, add a component in `features/chat/components/parts/` and a case in `chat-message.tsx`.
-4. Write it up in `docs/phases/`.
+4. Add test cases for it to the eval set and run `pnpm eval` before and after, so the write-up can report measured results.
+5. Add unit tests next to the code, as `*.test.ts`, for any logic that does not call a model.
+6. Write it up in `docs/phases/`.
 
 Because each feature connects at one place, turning it off is a one-line change, which makes it easy to find which feature caused a problem.
 
@@ -50,3 +61,8 @@ Because each feature connects at one place, turning it off is a one-line change,
 | --------------- | -------- | ---------------------------------------------------------- |
 | `KILO_API_KEY`  | Yes      | Kilo AI Gateway API key.                                   |
 | `KILO_BASE_URL` | No       | Overrides the gateway URL. Defaults to the public gateway. |
+
+## Testing
+
+- `pnpm test` runs unit tests with Vitest. They cover code that does not call a model, so they are fast and free.
+- `pnpm eval` runs the evaluation against real models. See [evals.md](evals.md).

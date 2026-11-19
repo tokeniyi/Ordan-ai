@@ -5,10 +5,13 @@ import { useChat } from "@ai-sdk/react"
 
 import { type ChatModel } from "@/lib/ai/models"
 import { type ChatUIMessage } from "@/features/chat/types"
-import { ChatMessage } from "@/features/chat/components/chat-message"
+import { ChatThread } from "@/features/chat/components/chat-thread"
+import { OptionSelect } from "@/features/chat/components/option-select"
 import { PromptForm } from "@/features/chat/components/prompt-form"
-import { StatusIcon } from "@/features/chat/components/status-icon"
 import { Suggestions } from "@/features/chat/components/suggestions"
+import { type PromptOption } from "@/features/prompts/types"
+import { FollowUps } from "@/features/suggestions/follow-ups"
+import { useFollowUps } from "@/features/suggestions/use-follow-ups"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
   Empty,
@@ -17,30 +20,29 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty"
-import { Message, MessageContent } from "@/components/ui/message"
-import {
-  MessageScroller,
-  MessageScrollerButton,
-  MessageScrollerContent,
-  MessageScrollerItem,
-  MessageScrollerProvider,
-  MessageScrollerViewport,
-} from "@/components/ui/message-scroller"
-import { Trace, TraceIcon, TraceLine, TraceTitle } from "@/components/ui/trace"
 
-export function Chat({ models }: { models: ChatModel[] }) {
+export function Chat({
+  models,
+  prompts,
+}: {
+  models: ChatModel[]
+  prompts: PromptOption[]
+}) {
   const [model, setModel] = React.useState(models[0]?.id ?? "")
+  const [promptId, setPromptId] = React.useState(prompts[0]?.id ?? "")
 
   const { messages, sendMessage, regenerate, status, stop, error } =
     useChat<ChatUIMessage>()
 
-  const resolvedModel = models.some((m) => m.id === model)
-    ? model
-    : (models[0]?.id ?? "")
+  const followUps = useFollowUps(messages, status)
 
   const isBusy = status === "submitted" || status === "streaming"
+  const body = { model, promptId }
 
-  const lastMessage = messages.at(-1)
+  function send(text: string) {
+    sendMessage({ text }, { body })
+  }
+
   return (
     <div className="mx-auto flex min-h-0 w-full flex-1 flex-col">
       {messages.length === 0 ? (
@@ -49,69 +51,21 @@ export function Chat({ models }: { models: ChatModel[] }) {
             <EmptyHeader>
               <EmptyTitle>What can I help with?</EmptyTitle>
               <EmptyDescription>
-                Pick a model and start chatting. Responses stream through the
-                Kilo AI Gateway.
+                Pick a model and a prompt, then start chatting. Responses stream
+                through the Kilo AI Gateway.
               </EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
-              <Suggestions
-                onSelect={(prompt) =>
-                  sendMessage(
-                    { text: prompt },
-                    { body: { model: resolvedModel } }
-                  )
-                }
-              />
+              <Suggestions onSelect={send} />
             </EmptyContent>
           </Empty>
         </div>
       ) : (
-        <MessageScrollerProvider>
-          <MessageScroller className="flex-1">
-            <MessageScrollerViewport>
-              <MessageScrollerContent className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-6">
-                {messages.map((message) => (
-                  <MessageScrollerItem
-                    key={message.id}
-                    messageId={message.id}
-                    scrollAnchor={message.role === "user"}
-                  >
-                    <ChatMessage
-                      message={message}
-                      isStreaming={isBusy && message.id === lastMessage?.id}
-                      onRetry={
-                        !isBusy && message.id === lastMessage?.id
-                          ? () =>
-                              regenerate({
-                                messageId: message.id,
-                                body: { model: resolvedModel },
-                              })
-                          : undefined
-                      }
-                    />
-                  </MessageScrollerItem>
-                ))}
-                {status === "submitted" && (
-                  <MessageScrollerItem messageId="thinking">
-                    <Message>
-                      <MessageContent>
-                        <Trace>
-                          <TraceLine status="running">
-                            <TraceIcon>
-                              <StatusIcon status="running" />
-                            </TraceIcon>
-                            <TraceTitle>Thinking</TraceTitle>
-                          </TraceLine>
-                        </Trace>
-                      </MessageContent>
-                    </Message>
-                  </MessageScrollerItem>
-                )}
-              </MessageScrollerContent>
-            </MessageScrollerViewport>
-            <MessageScrollerButton />
-          </MessageScroller>
-        </MessageScrollerProvider>
+        <ChatThread
+          messages={messages}
+          status={status}
+          onRetry={(messageId) => regenerate({ messageId, body })}
+        />
       )}
 
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-2 px-6 pb-6">
@@ -121,14 +75,26 @@ export function Chat({ models }: { models: ChatModel[] }) {
             <AlertDescription>{error.message}</AlertDescription>
           </Alert>
         )}
+        <FollowUps items={followUps} onSelect={send} />
         <PromptForm
-          models={models}
-          model={resolvedModel}
-          onModelChange={setModel}
-          isBusy={isBusy}
-          onSubmit={(text) =>
-            sendMessage({ text }, { body: { model: resolvedModel } })
+          controls={
+            <>
+              <OptionSelect
+                label="Model"
+                options={models}
+                value={model}
+                onValueChange={setModel}
+              />
+              <OptionSelect
+                label="Prompt"
+                options={prompts}
+                value={promptId}
+                onValueChange={setPromptId}
+              />
+            </>
           }
+          isBusy={isBusy}
+          onSubmit={send}
           onStop={() => stop()}
         />
       </div>

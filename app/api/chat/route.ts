@@ -8,8 +8,8 @@ import {
 
 import { DEFAULT_MODEL, isModelAllowed } from "@/lib/ai/models"
 import { getModel, hasApiKey } from "@/lib/ai/provider"
-import { SYSTEM_PROMPT } from "@/features/chat/prompt"
 import { type ChatUIMessage } from "@/features/chat/types"
+import { buildPrompt, DEFAULT_PROMPT_ID, getPrompt } from "@/features/prompts"
 
 export const maxDuration = 30
 
@@ -42,6 +42,18 @@ export async function POST(req: Request) {
     )
   }
 
+  const promptId = (body as { promptId?: unknown })?.promptId
+  const prompt = getPrompt(
+    typeof promptId === "string" ? promptId : DEFAULT_PROMPT_ID
+  )
+
+  if (!prompt) {
+    return Response.json(
+      { error: `Prompt ${String(promptId)} is not available.` },
+      { status: 400 }
+    )
+  }
+
   let messages: ChatUIMessage[]
   try {
     messages = await validateUIMessages<ChatUIMessage>({
@@ -51,10 +63,13 @@ export async function POST(req: Request) {
     return Response.json({ error: "Invalid messages." }, { status: 400 })
   }
 
+  const { system, examples, temperature } = buildPrompt(prompt)
+
   const result = streamText({
     model: getModel(modelId),
-    system: SYSTEM_PROMPT,
-    messages: await convertToModelMessages(messages),
+    system,
+    messages: [...examples, ...(await convertToModelMessages(messages))],
+    temperature,
     maxOutputTokens: MAX_OUTPUT_TOKENS,
     abortSignal: req.signal,
   })
