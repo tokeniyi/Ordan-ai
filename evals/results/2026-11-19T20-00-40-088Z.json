@@ -1,0 +1,377 @@
+{
+  "id": "2026-11-19T20-00-40-088Z",
+  "createdAt": "2026-11-19T20:00:40.088Z",
+  "dataset": "history",
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "judgeModel": "nvidia/nemotron-3.5-super-vl:free",
+  "history": {
+    "strategy": "full",
+    "budget": 1200
+  },
+  "summaries": [
+    {
+      "promptId": "structured",
+      "promptVersion": 1,
+      "cases": 8,
+      "passed": 8,
+      "errors": 0,
+      "checksPassed": 11,
+      "checksTotal": 11,
+      "correctness": 5,
+      "relevance": 5,
+      "clarity": 5,
+      "quality": 100,
+      "avgInputTokens": 1241,
+      "avgSummaryTokens": 0,
+      "avgOutputTokens": 81,
+      "avgLatencyMs": 2918,
+      "totalCostUsd": 0
+    }
+  ],
+  "results": [
+    {
+      "caseId": "recall-name-job",
+      "category": "recall",
+      "input": "Before I go, remind me: what's my name and what do I do?",
+      "promptId": "structured",
+      "answer": "Your name is Tunde and you work as a night-shift nurse in Lagos.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "Tunde",
+              "nurse"
+            ]
+          },
+          "label": "Mentions all of: Tunde, nurse",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 1439,
+      "inputTokens": 1229,
+      "outputTokens": 48,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 15,
+        "sentMessages": 15,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The answer correctly states both the name (Tunde) and the job (night-shift nurse in Lagos), matching the reference exactly. It answers exactly what was asked with no extra content, and it is concise and easy to follow.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "recall-budget",
+      "category": "recall",
+      "input": "OK, back to my trip. If I split my budget evenly, how much can I spend per day?",
+      "promptId": "structured",
+      "answer": "$250 per day.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "250"
+            ]
+          },
+          "label": "Mentions all of: 250",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 3283,
+      "inputTokens": 1255,
+      "outputTokens": 70,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 15,
+        "sentMessages": 15,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The answer states $250 per day, which exactly matches the reference calculation ($1,250 ÷ 5 days). It directly answers the question without asking for missing information or using a different total, and it is concise and easy to follow.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "recall-allergy",
+      "category": "constraint",
+      "input": "Suggest one easy snack I could take to work. Just name it.",
+      "promptId": "structured",
+      "answer": "A banana.",
+      "checks": [
+        {
+          "check": {
+            "type": "excludes",
+            "values": [
+              "peanut butter",
+              "trail mix",
+              "satay",
+              "groundnut"
+            ]
+          },
+          "label": "Does not mention: peanut butter, trail mix, satay, groundnut",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2886,
+      "inputTokens": 1223,
+      "outputTokens": 45,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 15,
+        "sentMessages": 15,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The answer suggests a banana, which is an easy, peanut-free snack (a fruit), fully matching the reference. It names exactly one snack and nothing else, following the 'just name it' instruction precisely. It is concise and easy to understand.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "recall-format",
+      "category": "constraint",
+      "input": "What is the capital of Kenya?",
+      "promptId": "structured",
+      "answer": "The capital of Kenya is Nairobi.\n\nOver and out.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "Nairobi"
+            ]
+          },
+          "label": "Mentions all of: Nairobi",
+          "passed": true
+        },
+        {
+          "check": {
+            "type": "matches",
+            "pattern": "over and out\\.?\\W*$",
+            "flags": "i"
+          },
+          "label": "Matches /over and out\\.?\\W*$/i",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 1557,
+      "inputTokens": 1217,
+      "outputTokens": 49,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 15,
+        "sentMessages": 15,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The answer correctly identifies Nairobi as the capital of Kenya and ends with the required line 'Over and out.', matching the reference exactly. It is concise, directly answers the question, follows the formatting instruction, and is easy to read.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "recall-list",
+      "category": "recall",
+      "input": "What were the three tasks I listed for this week?",
+      "promptId": "structured",
+      "answer": "Renew your passport, fix the leaking kitchen tap, and send the quarterly report to Ngozi.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "passport",
+              "tap",
+              "Ngozi"
+            ]
+          },
+          "label": "Mentions all of: passport, tap, Ngozi",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 3403,
+      "inputTokens": 1228,
+      "outputTokens": 111,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 15,
+        "sentMessages": 15,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The answer lists all three tasks from the reference (renew passport, fix leaking kitchen tap, send quarterly report to Ngozi) with no errors or omissions. It directly answers the question without extra content, and is concise and easy to follow.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "recall-code",
+      "category": "code",
+      "input": "Write one Vitest test for the function I showed you earlier. Use its real name.",
+      "promptId": "structured",
+      "answer": "```ts\nimport { describe, it, expect } from 'vitest'\nimport { calculateInvoiceTotal } from './invoice' // adjust path as needed\n\ndescribe('calculateInvoiceTotal', () => {\n  it('calculates total with tax and rounds to two decimals', () => {\n    const items = [\n      { price: 10, qty: 2 },\n      { price: 5.5, qty: 3 },\n    ]\n    const taxRate = 0.1 // 10%\n    // subtotal = 20 + 16.5 = 36.5\n    // with tax = 36.5 * 1.1 = 40.15\n    expect(calculateInvoiceTotal(items, taxRate)).toBe(40.15)\n  })\n})\n```",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "calculateInvoiceTotal"
+            ]
+          },
+          "label": "Mentions all of: calculateInvoiceTotal",
+          "passed": true
+        },
+        {
+          "check": {
+            "type": "hasCodeBlock"
+          },
+          "label": "Has a code block",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 4803,
+      "inputTokens": 1307,
+      "outputTokens": 207,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 15,
+        "sentMessages": 15,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The answer provides a single Vitest test that imports and calls `calculateInvoiceTotal` (its real name) with items and a tax rate, and asserts a correctly computed rounded total, matching the reference exactly. It is concise, well organized, and easy to follow.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "recall-correction",
+      "category": "recall",
+      "input": "What day and time is the party now?",
+      "promptId": "structured",
+      "answer": "Saturday the 14th at 4 pm.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "14"
+            ]
+          },
+          "label": "Mentions all of: 14",
+          "passed": true
+        },
+        {
+          "check": {
+            "type": "matches",
+            "pattern": "\\b4\\s?(pm|p\\.m\\.|:00)",
+            "flags": "i"
+          },
+          "label": "Matches /\\b4\\s?(pm|p\\.m\\.|:00)/i",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2493,
+      "inputTokens": 1257,
+      "outputTokens": 47,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 17,
+        "sentMessages": 17,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The answer exactly matches the reference: Saturday the 14th at 4 pm. It is correct, directly answers the question with no extra content, and is clear and concise.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "control-recent",
+      "category": "control",
+      "input": "How old will my cat be in three years, and what's her name?",
+      "promptId": "structured",
+      "answer": "Biscuit will be 10 years old.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "Biscuit",
+              "10"
+            ]
+          },
+          "label": "Mentions all of: Biscuit, 10",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 3482,
+      "inputTokens": 1212,
+      "outputTokens": 70,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 15,
+        "sentMessages": 15,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The answer states \"Biscuit will be 10 years old,\" which correctly provides both the cat's name (Biscuit) and her age in three years (10), matching the reference exactly. It answers both parts of the question with no extra or incorrect information, and it is concise and easy to follow.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    }
+  ]
+}

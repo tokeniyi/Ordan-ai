@@ -34,6 +34,20 @@ export function summarize(
       relevance: round(mean(judged.map((score) => score.relevance))),
       clarity: round(mean(judged.map((score) => score.clarity))),
       quality: Math.round(mean(own.flatMap((result) => result.quality ?? []))),
+      avgInputTokens: Math.round(
+        mean(answered.map((result) => result.inputTokens))
+      ),
+      ...(answered.some((result) => result.context) && {
+        avgSummaryTokens: Math.round(
+          mean(
+            answered.map(
+              (result) =>
+                (result.context?.summaryInputTokens ?? 0) +
+                (result.context?.summaryOutputTokens ?? 0)
+            )
+          )
+        ),
+      }),
       avgOutputTokens: Math.round(
         mean(answered.map((result) => result.outputTokens))
       ),

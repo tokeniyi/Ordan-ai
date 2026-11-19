@@ -1,0 +1,377 @@
+{
+  "id": "2026-11-19T20-03-46-765Z",
+  "createdAt": "2026-11-19T20:03:46.765Z",
+  "dataset": "history",
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "judgeModel": "nvidia/nemotron-3.5-super-vl:free",
+  "history": {
+    "strategy": "window",
+    "budget": 1200
+  },
+  "summaries": [
+    {
+      "promptId": "structured",
+      "promptVersion": 1,
+      "cases": 8,
+      "passed": 3,
+      "errors": 0,
+      "checksPassed": 5,
+      "checksTotal": 11,
+      "correctness": 2.75,
+      "relevance": 2.75,
+      "clarity": 5,
+      "quality": 70,
+      "avgInputTokens": 1074,
+      "avgSummaryTokens": 0,
+      "avgOutputTokens": 133,
+      "avgLatencyMs": 3891,
+      "totalCostUsd": 0
+    }
+  ],
+  "results": [
+    {
+      "caseId": "recall-name-job",
+      "category": "recall",
+      "input": "Before I go, remind me: what's my name and what do I do?",
+      "promptId": "structured",
+      "answer": "I don't know your name or what you do. Our conversation history doesn't include that information.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "Tunde",
+              "nurse"
+            ]
+          },
+          "label": "Mentions all of: Tunde, nurse",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 2109,
+      "inputTokens": 1065,
+      "outputTokens": 106,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 15,
+        "sentMessages": 11,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The reference states the user is Tunde, a night-shift nurse in Lagos, and requires both to be correct. The assistant says it does not know the name or job, providing neither piece of information and thus contradicting the reference. It therefore fails to answer the question. However, the response itself is clearly written and easy to understand.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "recall-budget",
+      "category": "recall",
+      "input": "OK, back to my trip. If I split my budget evenly, how much can I spend per day?",
+      "promptId": "structured",
+      "answer": "I don't have your budget or trip length in this conversation. What is your total budget and how many days are you travelling?",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "250"
+            ]
+          },
+          "label": "Mentions all of: 250",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 3422,
+      "inputTokens": 1070,
+      "outputTokens": 77,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 15,
+        "sentMessages": 11,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The reference states the budget is $1,250 for 5 days, so $250 per day, and explicitly says an answer that asks for the budget is wrong. The assistant’s response asks for the budget and trip length instead of giving the per-day amount, so it is incorrect and does not answer the question. The writing itself is short and easy to follow, but that does not make the content right.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "recall-allergy",
+      "category": "constraint",
+      "input": "Suggest one easy snack I could take to work. Just name it.",
+      "promptId": "structured",
+      "answer": "A banana.",
+      "checks": [
+        {
+          "check": {
+            "type": "excludes",
+            "values": [
+              "peanut butter",
+              "trail mix",
+              "satay",
+              "groundnut"
+            ]
+          },
+          "label": "Does not mention: peanut butter, trail mix, satay, groundnut",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 3085,
+      "inputTokens": 1063,
+      "outputTokens": 22,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 15,
+        "sentMessages": 11,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The answer suggests a banana, which is an easy, peanut-free snack (a fruit), fully matching the reference. It names exactly one snack and nothing else, following the 'just name it' instruction precisely. It is concise and easy to understand.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "recall-format",
+      "category": "constraint",
+      "input": "What is the capital of Kenya?",
+      "promptId": "structured",
+      "answer": "Nairobi.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "Nairobi"
+            ]
+          },
+          "label": "Mentions all of: Nairobi",
+          "passed": true
+        },
+        {
+          "check": {
+            "type": "matches",
+            "pattern": "over and out\\.?\\W*$",
+            "flags": "i"
+          },
+          "label": "Matches /over and out\\.?\\W*$/i",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 1602,
+      "inputTokens": 1055,
+      "outputTokens": 42,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 15,
+        "sentMessages": 11,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The answer correctly states that Nairobi is the capital of Kenya, so the factual claim is right. However, the reference specifies that the answer must end with \"Over and out.\" because of a prior user instruction, and the answer omits this required ending. It is therefore mostly right but missing an important requirement. It answers the core question but ignores part of the instruction, and the wording itself is clear and concise.",
+        "correctness": 3,
+        "relevance": 3,
+        "clarity": 5
+      },
+      "quality": 73
+    },
+    {
+      "caseId": "recall-list",
+      "category": "recall",
+      "input": "What were the three tasks I listed for this week?",
+      "promptId": "structured",
+      "answer": "I don't have that information. The conversation history I can see only contains your previous questions about viruses, compound interest, noise-cancelling headphones, leap years, and passwords. If you listed tasks in an earlier message that was removed to save space, I cannot see it.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "passport",
+              "tap",
+              "Ngozi"
+            ]
+          },
+          "label": "Mentions all of: passport, tap, Ngozi",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 3089,
+      "inputTokens": 1059,
+      "outputTokens": 174,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 15,
+        "sentMessages": 11,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The answer does not list any of the three required tasks (renew the passport, fix the leaking kitchen tap, send the quarterly report to Ngozi) and instead claims it lacks the information, so it is incorrect and fails to answer the question. It is, however, clearly written and easy to follow.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "recall-code",
+      "category": "code",
+      "input": "Write one Vitest test for the function I showed you earlier. Use its real name.",
+      "promptId": "structured",
+      "answer": "I don't see any function in our conversation history. The messages above only cover general knowledge questions. Could you share the function you'd like me to test?",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "calculateInvoiceTotal"
+            ]
+          },
+          "label": "Mentions all of: calculateInvoiceTotal",
+          "passed": false
+        },
+        {
+          "check": {
+            "type": "hasCodeBlock"
+          },
+          "label": "Has a code block",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 3037,
+      "inputTokens": 1066,
+      "outputTokens": 135,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 15,
+        "sentMessages": 11,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The answer does not provide the requested Vitest test, does not import or call calculateInvoiceTotal, and does not check a computed result. Instead, it asks the user to share the function, so it fails the task entirely. The writing itself is clear and concise, so clarity is high.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "recall-correction",
+      "category": "recall",
+      "input": "What day and time is the party now?",
+      "promptId": "structured",
+      "answer": "Saturday the 14th at 4 pm.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "14"
+            ]
+          },
+          "label": "Mentions all of: 14",
+          "passed": true
+        },
+        {
+          "check": {
+            "type": "matches",
+            "pattern": "\\b4\\s?(pm|p\\.m\\.|:00)",
+            "flags": "i"
+          },
+          "label": "Matches /\\b4\\s?(pm|p\\.m\\.|:00)/i",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 12572,
+      "inputTokens": 1104,
+      "outputTokens": 433,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 17,
+        "sentMessages": 13,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The answer exactly matches the reference: Saturday the 14th at 4 pm. It is correct, directly answers the question with no extra content, and is clear and concise.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "control-recent",
+      "category": "control",
+      "input": "How old will my cat be in three years, and what's her name?",
+      "promptId": "structured",
+      "answer": "Biscuit will be 10 years old in three years. Her name is Biscuit.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "Biscuit",
+              "10"
+            ]
+          },
+          "label": "Mentions all of: Biscuit, 10",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2211,
+      "inputTokens": 1107,
+      "outputTokens": 73,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 15,
+        "sentMessages": 13,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The answer correctly states that Biscuit will be 10 in three years and that her name is Biscuit, matching the reference exactly. It answers both parts of the question with no extra or missing information, and it is concise and easy to follow.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    }
+  ]
+}

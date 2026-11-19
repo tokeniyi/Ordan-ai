@@ -59,6 +59,12 @@ export function RunView({
             <Badge variant="outline">Dataset: {report.dataset}</Badge>
             <Badge variant="outline">Model: {report.model}</Badge>
             <Badge variant="outline">Judge: {report.judgeModel}</Badge>
+            {report.history && (
+              <Badge variant="outline">
+                History: {report.history.strategy}, {report.history.budget}{" "}
+                tokens
+              </Badge>
+            )}
           </div>
         </section>
 
@@ -85,6 +91,9 @@ export function RunView({
                   >
                     {formatDate(run.createdAt)} UTC · {run.dataset} ·{" "}
                     {run.summaries.map((s) => s.promptId).join(", ")}
+                    {run.dataset !== "core" &&
+                      run.history &&
+                      ` · ${run.history.strategy}`}
                   </Link>
                 </li>
               ))}

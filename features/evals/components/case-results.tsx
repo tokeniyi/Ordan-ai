@@ -48,6 +48,14 @@ function CaseRow({ result }: { result: CaseResult }) {
       <TraceCollapsibleContent>
         <div className="flex flex-col gap-3 py-1 text-sm">
           <p className="text-foreground">{result.input}</p>
+          {result.context && (
+            <p className="text-muted-foreground">
+              Sent {result.context.sentMessages} of{" "}
+              {result.context.totalMessages} messages
+              {result.context.summarized && ", the rest as a summary"}
+              {result.context.summaryFailed && ", summarizing failed"}.
+            </p>
+          )}
           {reasons.length > 0 && (
             <ul className="list-disc pl-5 text-destructive">
               {reasons.map((reason) => (

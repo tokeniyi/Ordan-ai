@@ -16,6 +16,9 @@ function table(rows: (string | number)[][]) {
 
 // A readable version of a run, saved next to the JSON.
 export function toMarkdown(report: RunReport) {
+  const hasSummary = report.summaries.some(
+    (s) => s.avgSummaryTokens !== undefined
+  )
   const summary = table([
     [
       "Prompt",
@@ -25,7 +28,9 @@ export function toMarkdown(report: RunReport) {
       "Correct",
       "Relevant",
       "Clear",
+      "Avg input tokens",
       "Avg output tokens",
+      ...(hasSummary ? ["Avg summary tokens"] : []),
       "Avg latency",
       "Cost",
       "Errors",
@@ -38,7 +43,9 @@ export function toMarkdown(report: RunReport) {
       s.correctness,
       s.relevance,
       s.clarity,
+      s.avgInputTokens ?? "–",
       s.avgOutputTokens,
+      ...(hasSummary ? [s.avgSummaryTokens ?? 0] : []),
       `${(s.avgLatencyMs / 1000).toFixed(1)}s`,
       `$${s.totalCostUsd}`,
       s.errors,
@@ -63,7 +70,7 @@ export function toMarkdown(report: RunReport) {
 - **Dataset:** ${report.dataset}
 - **Model:** ${report.model}
 - **Judge:** ${report.judgeModel}
-- **Date:** ${report.createdAt}
+${report.history ? `- **History:** ${report.history.strategy}, budget ${report.history.budget} tokens\n` : ""}- **Date:** ${report.createdAt}
 
 A case passes when all its checks pass and the judge scores it at least ${QUALITY_THRESHOLD}. Quality is the judge's mean score for correctness, relevance and clarity, scaled to 0 to 100. Checks counts the deterministic checks that passed.
 
