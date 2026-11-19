@@ -72,15 +72,18 @@ pnpm dev
 
 Open http://localhost:3000.
 
-| Command          | What it does                  |
-| ---------------- | ----------------------------- |
-| `pnpm dev`       | Start the dev server          |
-| `pnpm build`     | Build for production          |
-| `pnpm typecheck` | Check types                   |
-| `pnpm lint`      | Run ESLint                    |
-| `pnpm format`    | Format the code with Prettier |
-| `pnpm test`      | Run the unit tests            |
-| `pnpm eval`      | Run the evaluation            |
+| Command          | What it does                                   |
+| ---------------- | ---------------------------------------------- |
+| `pnpm dev`       | Start the dev server                           |
+| `pnpm build`     | Build for production                           |
+| `pnpm typecheck` | Check types                                    |
+| `pnpm lint`      | Run ESLint                                     |
+| `pnpm format`    | Format the code with Prettier                  |
+| `pnpm test`      | Run the unit tests                             |
+| `pnpm test:e2e`  | Run the browser tests (run `pnpm build` first) |
+| `pnpm eval`      | Run the evaluation                             |
+
+CI runs lint, typecheck, unit tests, the build and the browser tests on every pull request. The browser tests mock model calls, so CI needs no API key.
 
 ## Project structure
 
