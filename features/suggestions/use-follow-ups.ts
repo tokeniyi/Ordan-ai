@@ -13,15 +13,23 @@ function textOf(message: UIMessage | undefined) {
 }
 
 // Fetches follow-up questions once a reply has finished. Returns them only
-// while they still belong to the last message.
-export function useFollowUps(messages: UIMessage[], status: ChatStatus) {
+// while they still belong to the last message. Skips `skipMessageId`, such as
+// the last reply of a saved chat that was just opened.
+export function useFollowUps(
+  messages: UIMessage[],
+  status: ChatStatus,
+  skipMessageId?: string
+) {
   const [result, setResult] = React.useState<{
     messageId: string
     questions: string[]
   }>()
 
   const last = messages.at(-1)
-  const isDone = status === "ready" && last?.role === "assistant"
+  const isDone =
+    status === "ready" &&
+    last?.role === "assistant" &&
+    last.id !== skipMessageId
   const messageId = isDone ? last.id : undefined
   const answer = isDone ? textOf(last) : ""
   const question = isDone

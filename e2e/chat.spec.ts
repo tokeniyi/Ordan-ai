@@ -31,8 +31,12 @@ test("the prompt picker sends the chosen prompt with each message", async ({
   await expect(
     page.getByText("Mock reply from the step-by-step prompt.")
   ).toBeVisible()
-  expect(requests).toEqual([
-    { model: "kilo-auto/free", promptId: "step-by-step" },
+  expect(requests).toMatchObject([
+    {
+      model: "kilo-auto/free",
+      promptId: "step-by-step",
+      history: { strategy: "summary" },
+    },
   ])
 
   // Follow-up suggestions appear once the reply has finished.
