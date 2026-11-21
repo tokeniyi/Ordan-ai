@@ -37,3 +37,13 @@ describe("citations", () => {
     )
   })
 })
+
+describe("passageText", () => {
+  it("drops the leading heading line and keeps the rest", async () => {
+    const { passageText } = await import("@/features/rag/passage")
+    expect(passageText("## Deposit\n\nNo deposit.\n## Not a heading")).toBe(
+      "No deposit.\n## Not a heading"
+    )
+    expect(passageText("Plain text.")).toBe("Plain text.")
+  })
+})

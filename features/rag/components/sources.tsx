@@ -2,6 +2,7 @@
 
 import { BookOpenIcon, FileTextIcon } from "lucide-react"
 
+import { passageText } from "@/features/rag/passage"
 import { type RagInfo } from "@/features/rag/types"
 import {
   Trace,
@@ -66,7 +67,7 @@ export function Sources({ rag }: { rag: RagInfo }) {
                   </TraceLine>
                 </TraceCollapsibleTrigger>
                 <TraceCollapsibleContent className="text-sm whitespace-pre-wrap">
-                  {source.text}
+                  {passageText(source.text)}
                 </TraceCollapsibleContent>
               </TraceCollapsible>
             ))}

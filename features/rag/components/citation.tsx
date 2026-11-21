@@ -1,5 +1,6 @@
 "use client"
 
+import { passageText } from "@/features/rag/passage"
 import { type RagSource } from "@/features/rag/types"
 import { Button } from "@/components/ui/button"
 import {
@@ -44,7 +45,9 @@ export function Citation({ n, source }: { n: number; source?: RagSource }) {
         {source.heading && (
           <div className="text-xs text-muted-foreground">{source.heading}</div>
         )}
-        <p className="line-clamp-6 text-muted-foreground">{source.text}</p>
+        <p className="line-clamp-6 text-muted-foreground">
+          {passageText(source.text)}
+        </p>
       </HoverCardContent>
     </HoverCard>
   )
