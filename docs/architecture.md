@@ -8,7 +8,9 @@ Ordan AI is one Next.js app. The code is split so that each AI concept lives in 
 app/
   api/chat/route.ts         The chat endpoint. Validates the request, calls the model, streams the reply.
   api/suggestions/route.ts Returns follow-up questions for a finished reply.
+  api/search/route.ts      Searches the Kestrel corpus, semantic or keyword.
   chat/[id]/page.tsx       A saved chat, loaded from the browser's storage.
+  search/page.tsx          The search page.
   compare/page.tsx         The compare page.
   evals/                   The eval results pages, built from evals/results.
   layout.tsx, page.tsx     The shell and the chat page.
@@ -21,13 +23,19 @@ features/
     types.ts            The message types shared by the route and the UI.
   history/              Saved chats, the chat list, and fitting the history into a token budget.
   prompts/              The versioned prompt library and the prompt builder.
+  search/               Chunking, embeddings, the vector store, BM25 and retrieval metrics.
   suggestions/          Follow-up questions, generated as structured output.
   compare/              The side-by-side prompt comparison.
   evals/                Test sets, checks, the LLM judge, the runner and the results page.
 evals/results/          Saved eval runs, as JSON and Markdown.
+evals/retrieval/        Saved retrieval runs, as JSON and Markdown.
+data/corpus/kestrel/    The made-up help centre that search and RAG use.
+data/index/             One search index per chunking strategy, built by `pnpm index`.
 scripts/eval.ts         Runs the evaluation from the command line.
+scripts/build-index.ts  Chunks and embeds the corpus.
+scripts/eval-retrieval.ts  Measures recall@k and MRR for every strategy.
 lib/
-  ai/provider.ts        The Kilo AI Gateway client. The only file that knows the provider.
+  ai/provider.ts        The Kilo AI Gateway client and the local embedding model. The only file that knows the providers.
   ai/models.ts          The models the picker offers and the route accepts.
 docs/                   This folder.
 ```
@@ -38,6 +46,12 @@ docs/                   This folder.
 2. `app/api/chat/route.ts` checks the model against `lib/ai/models.ts`, validates the messages, builds the prompt with `features/prompts`, fits the history into the budget with `features/history/prepare.ts` (trimming or summarizing old turns), and calls `streamText` with the model from `lib/ai/provider.ts`.
 3. The reply streams back as typed parts. `chat-message.tsx` switches on the part type and renders each one with a component from `components/parts/`. The message metadata says what was done with the history and how many tokens the reply used.
 4. When the reply finishes, `features/suggestions` asks `/api/suggestions` for follow-up questions and shows them above the input, and the chat is saved to the browser's localStorage by `features/history/store.ts`.
+
+## How a search flows
+
+1. `pnpm index` reads `data/corpus/kestrel/`, chunks every page with each strategy in `features/search/chunk/`, embeds the chunks with `embedTexts` from `lib/ai/provider.ts`, and writes `data/index/<strategy>.json`. The files are committed.
+2. `/search` sends the query, the strategy and the method to `/api/search`.
+3. The route loads the index file, embeds the query with the same model, and ranks every chunk by cosine similarity, or by BM25 for keyword search (`features/search/search.ts`).
 
 ## Rules
 
@@ -63,8 +77,10 @@ Because each feature connects at one place, turning it off is a one-line change,
 | --------------- | -------- | ---------------------------------------------------------- |
 | `KILO_API_KEY`  | Yes      | Kilo AI Gateway API key.                                   |
 | `KILO_BASE_URL` | No       | Overrides the gateway URL. Defaults to the public gateway. |
+| `TRANSFORMERS_CACHE` | No  | Where the embedding model's weights are cached. Defaults to `.cache/transformers`. |
 
 ## Testing
 
 - `pnpm test` runs unit tests with Vitest. They cover code that does not call a model, so they are fast and free.
 - `pnpm eval` runs the evaluation against real models. See [evals.md](evals.md).
+- `pnpm eval:retrieval` measures search on the Kestrel corpus. It runs the embedding model locally, so it is free.

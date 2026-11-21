@@ -37,6 +37,8 @@ Ordan AI is a learning playground for AI engineering. The chat is the test bench
 | `pnpm test` | Vitest unit tests. No model calls, no network. |
 | `pnpm build` then `pnpm test:e2e` | Playwright browser tests against the production build. Model calls are mocked in the browser. |
 | `pnpm eval` | Run the eval against real models. Needs `KILO_API_KEY`. |
+| `pnpm index` | Chunk and embed `data/corpus/kestrel/` into `data/index/`. Run after changing the corpus or a chunker, and commit the output. |
+| `pnpm eval:retrieval` | Measure search (recall@k, MRR). Local and free. |
 
 CI (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests, the build and the browser tests on every pull request. Run the same steps locally before pushing.
 
@@ -66,6 +68,8 @@ CI (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests, the build and 
 - **The shadcn CLI asks before overwriting.** `npx shadcn add sidebar` asks whether to overwrite `button.tsx`. Answer no: `yes n | pnpm exec shadcn add <name>`. Generated components import `cn` from the `cn` package.
 - **Message metadata carries server facts.** The chat route sends what it did with the history (`context`) and the token usage (`usage`) as message metadata. The browser saves it with the chat and sends the summary back. See `features/chat/types.ts`.
 - **The `/evals` page shows the newest run.** A run with one prompt makes the summary table one row long. `e2e/evals.spec.ts` checks the phase 2 run by its own page for that reason.
+- **Embeddings run locally.** `embedTexts` in `lib/ai/provider.ts` uses Transformers.js. The first call downloads about 90 MB from Hugging Face into `.cache/transformers` (not committed). Unit tests never load it: they pass a fake embedding function. Chunk sizes are counted with the embedding model's tokenizer without its two special tokens, because counts of pieces must add up.
+- **Index files must match the corpus.** `features/search/corpus.test.ts` fails if a page changed without `pnpm index`, or if a retrieval question's passage is not whole in some chunk.
 - **Free-tier rate limit.** Kilo allows 200 free-model requests an hour per IP address. A full core run is 160 calls. Use `--prompts` and `--cases` to stay inside it. The eval cache (`evals/.cache/`, not committed) resumes a run that stopped at the limit.
 
 ## Running in a cloud container
@@ -73,7 +77,7 @@ CI (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests, the build and 
 - The network goes through a proxy. Node's built-in `fetch` ignores `HTTPS_PROXY`, so run evals and scripts with `NODE_USE_ENV_PROXY=1`. The proxy adds the Kilo key, so set `KILO_API_KEY` to any placeholder value: `NODE_USE_ENV_PROXY=1 KILO_API_KEY=placeholder pnpm eval ...`.
 - `next start` did not reach the gateway through the proxy, even with that variable. To check a server-side change against real models, call the feature's functions from a `tsx` script, as the eval runner does.
 - Playwright and Chromium are installed. Do not run `playwright install`.
-- Hosts outside the allowlist, such as `huggingface.co`, are blocked unless the environment's network settings allow them.
+- Hosts outside the allowlist are blocked. The Ordan-ai environment allows Hugging Face (`huggingface.co` and its file hosts, such as `us.aws.cdn.hf.co`) so the embedding model can download. Run `pnpm index` and `pnpm eval:retrieval` with `NODE_USE_ENV_PROXY=1`.
 
 ## Git and pull requests
 

@@ -2,7 +2,7 @@
 
 What has been built, what it showed, and what comes next. Each phase adds one concept to the chat, measures what it changed, and ends with a write-up in [phases](phases). The order of later phases is a suggestion. Later phases build on earlier ones, but the order can change.
 
-Phases 0 to 3 are done. Phase 4 is next.
+Phases 0 to 4 are done. Phase 5 is next.
 
 ## At a glance
 
@@ -12,8 +12,8 @@ Phases 0 to 3 are done. Phase 4 is next.
 | 1     | Prompt engineering     | Done        | System prompts, few-shot examples, structured output, prompt versions, comparing prompts side by side            | Suggestion, Model Selector     |
 | 2     | Evaluation             | Done        | Test sets, deterministic checks, LLM as judge, regression runs, cost and latency per run                         | Test Results                   |
 | 3     | Conversation history   | Done        | Saving chats, a chat list, context window limits, trimming and summarizing old turns                             | Context, Checkpoint            |
-| 4     | NLP pipeline           | Next        | Tokenization, chunking strategies, embeddings, vector stores, semantic search                                    |                                |
-| 5     | Basic RAG              | Planned     | Document ingestion, retrieval, grounding the answer in sources, citations, retrieval metrics (recall@k, MRR), faithfulness | Sources, Inline Citation |
+| 4     | NLP pipeline           | Done        | Tokenization, chunking strategies, embeddings, vector stores, semantic search                                    |                                |
+| 5     | Basic RAG              | Next        | Document ingestion, retrieval, grounding the answer in sources, citations, retrieval metrics (recall@k, MRR), faithfulness | Sources, Inline Citation |
 | 6     | Advanced RAG           | Planned     | Hybrid search (keyword plus vector), reranking, query rewriting, HyDE, multi-query, contextual retrieval         | Chain of Thought               |
 | 7     | Cost and caching       | Planned     | Token and cost tracking, prompt caching, semantic caching, latency budgets                                       | Context                        |
 | 8     | Model routing          | Planned     | Routing by task difficulty, fallbacks, comparing an own router with Kilo's auto models                           | Model Selector                 |
@@ -45,19 +45,19 @@ Chats are saved in the browser and listed in a sidebar at `/chat/<id>`. The chat
 
 Result: the summary strategy answered 8 of 8 with 45% fewer input tokens than the full history. The window answered 3 of 8, because it forgot facts from the first turn, but it said so instead of making them up. Over a simulated 40-turn chat, both used about 39% fewer tokens than the full history. [Write-up](phases/phase-03-conversation-history.md)
 
-## What is next
-
 ### Phase 4: NLP pipeline
 
-The groundwork for RAG, with no change yet to how the chat answers:
+A made-up help centre of 8 pages (`data/corpus/kestrel/`), four chunking strategies (fixed size, sentences, recursive, recursive with headings), local embeddings with `all-MiniLM-L6-v2` through Transformers.js, an in-memory vector store, BM25 keyword search, and a `/search` page that shows both methods side by side, in `features/search/`. `pnpm index` builds the committed index files, and `pnpm eval:retrieval` measures recall@k and MRR on 24 questions.
 
-- **Tokenization:** count tokens with a real tokenizer instead of the four-characters estimate from phase 3, and compare the two.
-- **Chunking:** split documents by fixed size, by sentence and paragraph, and recursively by structure, with overlap. Compare the strategies.
-- **Embeddings:** turn chunks into vectors. Where they come from is still open, see below.
-- **Vector store:** store vectors and search them by cosine similarity, starting in memory.
-- **Semantic search:** a search page over a sample document set, and a retrieval test set with recall@k and MRR, so phase 5 can start from measured retrieval.
+Result: semantic search with recursive chunking found the answer in the top 5 for 23 of 24 questions (MRR 0.75), against 11 for keyword search (MRR 0.34). Fixed-size chunks were the worst for semantic search (MRR 0.57), because a window often mixes two sections. A character estimate of tokens turned out closer to the chat models' real counts (3% off) than OpenAI's tokenizer (9% off), so the history budget keeps it. [Write-up](phases/phase-04-nlp-pipeline.md)
 
-### Phases 5 to 11
+## What is next
+
+### Phase 5: Basic RAG
+
+Connect search to the chat: retrieve chunks from the Kestrel corpus for each question, put them in the prompt, and answer with citations, using the shadcn/ui Sources and Inline Citation patterns. Measure it with a test set of questions about Kestrel that a model cannot answer from training, scoring both the answer (correct, grounded in the sources, says "I don't know" when the corpus has no answer) and the retrieval (the phase 4 metrics). Start from recursive chunking with headings and semantic search, the best setup measured in phase 4.
+
+### Phases 6 to 11
 
 See the table above. Each phase's write-up will list what it builds.
 
@@ -86,8 +86,16 @@ Follow-ups found in earlier phases that no phase has taken on yet. Pick them up 
 
 ### History
 
-- **Real token counts.** Phase 3 estimates tokens at four characters each, which can be 20% off or more for code and other languages. Phase 4 adds a tokenizer. (Phase 3)
+- **Real token counts for the chat models.** Phase 4 measured the four-characters estimate at 3% off the provider's counts on the eval requests, closer than OpenAI's tokenizer. A model's own tokenizer would be better still, where one is published. (Phases 3 and 4)
 - **A budget per model.** The budget is the same for every model, because Kilo's auto models route to models with different context windows. Phase 8 may make the real limit known. (Phase 3)
+
+### Search
+
+- **Stemming for keyword search.** BM25 does not match "serviced" with "service". A stemmer would fix that. (Phase 4)
+- **Questions with spread-out answers.** Every retrieval question has one passage. Questions that need two chunks would test whether k is large enough. (Phase 4)
+- **A bigger retrieval test set.** 24 questions cannot separate strategies that differ by one or two questions. (Phase 4)
+- **Model load time.** `/api/search` loads the embedding model on its first request, a few seconds and about 90 MB of memory. Loading it at server start, or a hosted embedding model, would avoid that. (Phase 4)
+- **A real vector database.** The index is a JSON file read into memory, which suits hundreds of chunks. A vector database with an approximate index is needed for more. (Phase 4)
 
 ## Other concepts worth adding
 
@@ -100,5 +108,5 @@ Follow-ups found in earlier phases that no phase has taken on yet. Pick them up 
 
 ## Open questions
 
-- **Embeddings.** The Kilo gateway lists no embedding models, but its `/embeddings` endpoint accepts paid ones such as `openai/text-embedding-3-small`, which need credits. The free alternative is a small model run locally, such as `all-MiniLM-L6-v2` with Transformers.js, which downloads its weights from Hugging Face on first use. Phase 4 decides.
+- **Hosted embeddings.** Phase 4 runs `all-MiniLM-L6-v2` locally, because the gateway's `/embeddings` endpoint only offers paid models such as `openai/text-embedding-3-small`. A larger hosted model may retrieve better. Comparing the two needs credits.
 - **Free-tier limits.** Kilo allows 200 free-model requests an hour per IP address, shared by the app and the evals. Larger eval sets, or running every prompt on every set, will need paid models or runs spread over several hours.

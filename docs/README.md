@@ -11,4 +11,4 @@
 | 1     | Prompt engineering | Done | [phase-01-prompt-engineering.md](phases/phase-01-prompt-engineering.md) |
 | 2     | Evaluation | Done | [phase-02-evaluation.md](phases/phase-02-evaluation.md) |
 | 3     | Conversation history | Done | [phase-03-conversation-history.md](phases/phase-03-conversation-history.md) |
-| 4     | NLP pipeline | Next | |
+| 4     | NLP pipeline | Done | [phase-04-nlp-pipeline.md](phases/phase-04-nlp-pipeline.md) |
