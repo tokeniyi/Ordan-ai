@@ -23,6 +23,7 @@ features/
     types.ts            The message types shared by the route and the UI.
   history/              Saved chats, the chat list, and fitting the history into a token budget.
   prompts/              The versioned prompt library and the prompt builder.
+  rag/                  Retrieval for the chat, the grounding prompt, citations, and the Sources and Inline Citation components.
   search/               Chunking, embeddings, the vector store, BM25 and retrieval metrics.
   suggestions/          Follow-up questions, generated as structured output.
   compare/              The side-by-side prompt comparison.
@@ -42,9 +43,9 @@ docs/                   This folder.
 
 ## How a message flows
 
-1. `features/chat/components/chat.tsx` sends the messages, the chosen model, the chosen prompt id and the history settings (strategy and the last summary) to `/api/chat` with `useChat`.
-2. `app/api/chat/route.ts` checks the model against `lib/ai/models.ts`, validates the messages, builds the prompt with `features/prompts`, fits the history into the budget with `features/history/prepare.ts` (trimming or summarizing old turns), and calls `streamText` with the model from `lib/ai/provider.ts`.
-3. The reply streams back as typed parts. `chat-message.tsx` switches on the part type and renders each one with a component from `components/parts/`. The message metadata says what was done with the history and how many tokens the reply used.
+1. `features/chat/components/chat.tsx` sends the messages, the chosen model, the chosen prompt id, the knowledge base (none or the Kestrel help centre) and the history settings (strategy and the last summary) to `/api/chat` with `useChat`.
+2. `app/api/chat/route.ts` checks the model against `lib/ai/models.ts`, validates the messages and builds the prompt with `features/prompts`. With the Kestrel help centre on, it retrieves the closest chunks for the newest question with `features/rag/kestrel.ts`, adds them to the system prompt with `features/rag/prompt.ts`, and strips old citations from earlier answers. Then it fits the history into the budget with `features/history/prepare.ts` (trimming or summarizing old turns), and calls `streamText` with the model from `lib/ai/provider.ts`.
+3. The reply streams back as typed parts. `chat-message.tsx` switches on the part type and renders each one with a component from `components/parts/`. The message metadata says what was done with the history, which sources the reply was given, and how many tokens it used. Citations such as [1] in the text become inline citations, and a Sources line lists the passages.
 4. When the reply finishes, `features/suggestions` asks `/api/suggestions` for follow-up questions and shows them above the input, and the chat is saved to the browser's localStorage by `features/history/store.ts`.
 
 ## How a search flows
@@ -52,6 +53,8 @@ docs/                   This folder.
 1. `pnpm index` reads `data/corpus/kestrel/`, chunks every page with each strategy in `features/search/chunk/`, embeds the chunks with `embedTexts` from `lib/ai/provider.ts`, and writes `data/index/<strategy>.json`. The files are committed.
 2. `/search` sends the query, the strategy and the method to `/api/search`.
 3. The route loads the index file, embeds the query with the same model, and ranks every chunk by cosine similarity, or by BM25 for keyword search (`features/search/search.ts`).
+
+The chat uses the same search for RAG, always with recursive chunks with headings and semantic search (`features/rag/config.ts`).
 
 ## Rules
 

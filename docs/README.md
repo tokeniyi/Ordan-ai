@@ -12,3 +12,4 @@
 | 2     | Evaluation | Done | [phase-02-evaluation.md](phases/phase-02-evaluation.md) |
 | 3     | Conversation history | Done | [phase-03-conversation-history.md](phases/phase-03-conversation-history.md) |
 | 4     | NLP pipeline | Done | [phase-04-nlp-pipeline.md](phases/phase-04-nlp-pipeline.md) |
+| 5     | Basic RAG | Done | [phase-05-basic-rag.md](phases/phase-05-basic-rag.md) |
