@@ -61,6 +61,8 @@ Each case is scored in two ways.
 
 **Quality** is the mean of the three judge scores, scaled to 0 to 100.
 
+When the answer was given sources (see [RAG evals](#rag-evals)), the judge also sees the sources and gives a fourth score, **faithfulness**: whether every claim is supported by them. It is reported on its own and is not part of quality, so quality stays comparable with runs without sources.
+
 A case **passes** when all its checks pass and its quality is at least 80. The threshold is `QUALITY_THRESHOLD` in `features/evals/status.ts`.
 
 ## Add a test case
@@ -109,6 +111,23 @@ Each question names the passage that answers it. A chunk is relevant when it con
 - **The rank per question,** for every strategy and method, so a change can be traced to the questions it moved.
 
 To add a question, add an entry with its `docId` and `evidence`, a short passage copied exactly from that page. `features/search/corpus.test.ts` fails if the passage is not in the page, or is not whole in at least one chunk of every strategy. After changing the corpus or a chunker, run `pnpm index` before the eval.
+
+## RAG evals
+
+The `rag` test set has 20 questions about the Kestrel help centre (`features/evals/datasets/rag.ts`): 13 it answers, 2 follow-ups, 1 with a wrong fact in the question, and 4 it does not cover, where a good answer says so. The set has `knowledge: "kestrel"`, so a run retrieves sources for each question with the same code as the chat and adds them to the system prompt. `--knowledge none` asks the same questions without sources, which is the "before":
+
+```bash
+pnpm eval --dataset rag --prompts structured --knowledge none
+pnpm eval --dataset rag --prompts structured
+```
+
+Besides the usual scores, a run with sources reports:
+
+- **Found:** the answerable cases where a source held the passage that answers them. Each such case has a `retrieval` field with a `docId` and `evidence`, as in the retrieval evals.
+- **Faithful:** the judge's mean faithfulness score, 1 to 5.
+- **Cited:** answers with at least one citation such as [1], and how many citations pointed at a source that was not given.
+
+`features/evals/datasets/rag.test.ts` fails if a case's passage is not in its page, or not whole in a chunk of the index the chat uses. Retrieval runs locally and is not cached. The answer's cache key includes the sources, because they are in the system prompt.
 
 ## Compare runs fairly
 

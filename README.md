@@ -33,12 +33,12 @@ The goal is not to build another chatbot. The chat is the test bench: each phase
 - Saved chats in a sidebar, kept in the browser
 - History budgeting: a sliding window or a rolling summary keeps long chats inside a token budget, with a context indicator and checkpoints
 - Search over a sample help centre: four chunking strategies, local embeddings, semantic and keyword (BM25) search side by side, measured with recall@k and MRR
+- Answers from the sample help centre with citations (RAG): a Knowledge picker in the chat, inline citations and a sources list, measured for correctness, faithfulness and retrieval
 - Light and dark themes
 
 ### Upcoming features
 
-- Basic RAG with citations
-- Hybrid search
+- Hybrid search and reranking
 - Semantic caching
 - Multi-model routing
 - Agent workflows

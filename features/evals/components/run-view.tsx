@@ -65,6 +65,9 @@ export function RunView({
                 tokens
               </Badge>
             )}
+            {report.knowledge && (
+              <Badge variant="outline">Knowledge: {report.knowledge}</Badge>
+            )}
           </div>
         </section>
 
@@ -91,9 +94,11 @@ export function RunView({
                   >
                     {formatDate(run.createdAt)} UTC · {run.dataset} ·{" "}
                     {run.summaries.map((s) => s.promptId).join(", ")}
-                    {run.dataset !== "core" &&
-                      run.history &&
-                      ` · ${run.history.strategy}`}
+                    {run.knowledge
+                      ? ` · knowledge: ${run.knowledge}`
+                      : run.dataset !== "core" &&
+                        run.history &&
+                        ` · ${run.history.strategy}`}
                   </Link>
                 </li>
               ))}

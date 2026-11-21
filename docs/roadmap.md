@@ -2,7 +2,7 @@
 
 What has been built, what it showed, and what comes next. Each phase adds one concept to the chat, measures what it changed, and ends with a write-up in [phases](phases). The order of later phases is a suggestion. Later phases build on earlier ones, but the order can change.
 
-Phases 0 to 4 are done. Phase 5 is next.
+Phases 0 to 5 are done. Phase 6 is next.
 
 ## At a glance
 
@@ -13,8 +13,8 @@ Phases 0 to 4 are done. Phase 5 is next.
 | 2     | Evaluation             | Done        | Test sets, deterministic checks, LLM as judge, regression runs, cost and latency per run                         | Test Results                   |
 | 3     | Conversation history   | Done        | Saving chats, a chat list, context window limits, trimming and summarizing old turns                             | Context, Checkpoint            |
 | 4     | NLP pipeline           | Done        | Tokenization, chunking strategies, embeddings, vector stores, semantic search                                    |                                |
-| 5     | Basic RAG              | Next        | Document ingestion, retrieval, grounding the answer in sources, citations, retrieval metrics (recall@k, MRR), faithfulness | Sources, Inline Citation |
-| 6     | Advanced RAG           | Planned     | Hybrid search (keyword plus vector), reranking, query rewriting, HyDE, multi-query, contextual retrieval         | Chain of Thought               |
+| 5     | Basic RAG              | Done        | Document ingestion, retrieval, grounding the answer in sources, citations, retrieval metrics (recall@k, MRR), faithfulness | Sources, Inline Citation |
+| 6     | Advanced RAG           | Next        | Hybrid search (keyword plus vector), reranking, query rewriting, HyDE, multi-query, contextual retrieval         | Chain of Thought               |
 | 7     | Cost and caching       | Planned     | Token and cost tracking, prompt caching, semantic caching, latency budgets                                       | Context                        |
 | 8     | Model routing          | Planned     | Routing by task difficulty, fallbacks, comparing an own router with Kilo's auto models                           | Model Selector                 |
 | 9     | Tools and agents       | Planned     | Tool calling, human approval, multi-step loops, planning                                                         | Tool, Confirmation, Plan, Task |
@@ -51,13 +51,19 @@ A made-up help centre of 8 pages (`data/corpus/kestrel/`), four chunking strateg
 
 Result: semantic search with recursive chunking found the answer in the top 5 for 23 of 24 questions (MRR 0.75), against 11 for keyword search (MRR 0.34). Fixed-size chunks were the worst for semantic search (MRR 0.57), because a window often mixes two sections. A character estimate of tokens turned out closer to the chat models' real counts (3% off) than OpenAI's tokenizer (9% off), so the history budget keeps it. [Write-up](phases/phase-04-nlp-pipeline.md)
 
-## What is next
-
 ### Phase 5: Basic RAG
 
-Connect search to the chat: retrieve chunks from the Kestrel corpus for each question, put them in the prompt, and answer with citations, using the shadcn/ui Sources and Inline Citation patterns. Measure it with a test set of questions about Kestrel that a model cannot answer from training, scoring both the answer (correct, grounded in the sources, says "I don't know" when the corpus has no answer) and the retrieval (the phase 4 metrics). Start from recursive chunking with headings and semantic search, the best setup measured in phase 4.
+The chat can answer from the Kestrel help centre, picked with a Knowledge picker. The route retrieves the 4 closest chunks for the newest question, adds them to the system prompt with instructions to cite them and to say when they do not cover the question, and sends them to the browser, which shows inline citations and a sources list, in `features/rag/`. The eval framework gained a 20-case `rag` test set, a `--knowledge` option to ask it with or without sources, a faithfulness score from the judge, and retrieval and citation results per case.
 
-### Phases 6 to 11
+Result: without sources, 0 of 20 passed and the model borrowed figures from other companies. With sources, 18 of 20 passed, with faithfulness 5.0 and no invalid citations, and all 4 questions the help centre does not cover were answered with "not covered". Both failures were retrieval misses: a question worded far from its passage, and a follow-up whose search did not see the turn before. [Write-up](phases/phase-05-basic-rag.md)
+
+## What is next
+
+### Phase 6: Advanced RAG
+
+Improve retrieval, which phase 5 showed is the limit: the model used every passage it was given correctly, and both failures came from passages it was never given. Start with the two failures in the `rag` set: query rewriting from the conversation for follow-ups (searching with the previous question added moved the missing passage to rank 2), and HyDE or multi-query for questions worded far from the page. Then hybrid search (BM25 plus vectors) and reranking. Grow the retrieval and `rag` test sets first, because 20 and 24 cases cannot separate techniques that differ by one or two questions.
+
+### Phases 7 to 11
 
 See the table above. Each phase's write-up will list what it builds.
 
@@ -95,6 +101,9 @@ Follow-ups found in earlier phases that no phase has taken on yet. Pick them up 
 - **Questions with spread-out answers.** Every retrieval question has one passage. Questions that need two chunks would test whether k is large enough. (Phase 4)
 - **A bigger retrieval test set.** 24 questions cannot separate strategies that differ by one or two questions. (Phase 4)
 - **Model load time.** `/api/search` loads the embedding model on its first request, a few seconds and about 90 MB of memory. Loading it at server start, or a hosted embedding model, would avoid that. (Phase 4)
+- **Decide when to search.** With the Kestrel help centre on, every message is searched, even "thanks". (Phase 5)
+- **Test the faithfulness judge.** Every phase 5 answer scored 5, so it is not known whether the judge catches an unsupported claim. A few deliberately unfaithful answers would show it. (Phase 5)
+- **More than one knowledge base.** The RAG instructions describe Kestrel. A second corpus needs its own description, and the picker would list it. (Phase 5)
 - **A real vector database.** The index is a JSON file read into memory, which suits hundreds of chunks. A vector database with an approximate index is needed for more. (Phase 4)
 
 ## Other concepts worth adding

@@ -55,6 +55,7 @@ function fakeCalls(generate: EvalCalls["generate"]): EvalCalls {
       outputTokens: 10,
       costUsd: 0.01,
     })),
+    retrieve: vi.fn(async () => []),
   }
 }
 
@@ -236,5 +237,137 @@ describe("runEval with history", () => {
     expect(calls.generate).not.toHaveBeenCalled()
     expect(report.stoppedReason).toMatch(/rate limit/)
     expect(report.results[0].error).toMatch(/Skipped/)
+  })
+})
+
+// A knowledge case with its passage, one the documents do not answer, and a
+// follow-up whose earlier answer cites a source.
+const ragDataset: Dataset = {
+  id: "rag",
+  description: "",
+  knowledge: "kestrel",
+  cases: [
+    {
+      id: "price",
+      category: "answerable",
+      input: "What does the Commuter plan cost?",
+      reference: "€29 a month",
+      retrieval: { docId: "memberships", evidence: "€29 a month" },
+    },
+    {
+      id: "buy",
+      category: "not-covered",
+      input: "Can I buy a bike?",
+      reference: "Not covered",
+    },
+    {
+      id: "follow-up",
+      category: "follow-up",
+      history: [
+        { role: "user", content: "Tell me about the Commuter plan." },
+        { role: "assistant", content: "It includes the K1 bike [2]." },
+      ],
+      input: "How much is it?",
+      reference: "€29 a month",
+    },
+  ],
+}
+
+const ragSources = [
+  {
+    n: 1,
+    chunkId: "memberships#1",
+    docId: "memberships",
+    docTitle: "Memberships",
+    text: "| Commuter | €29 a month |",
+    score: 0.6,
+  },
+  {
+    n: 2,
+    chunkId: "bikes#0",
+    docId: "bikes",
+    docTitle: "Bikes",
+    text: "Two bikes.",
+    score: 0.4,
+  },
+]
+
+function runRag(calls: EvalCalls, knowledge?: "none" | "kestrel") {
+  return runEval({
+    dataset: ragDataset,
+    prompts: [prompt],
+    model: "m",
+    judgeModel: "j",
+    knowledge,
+    concurrency: 1,
+    cache: memoryCache(),
+    calls,
+  })
+}
+
+describe("runEval with knowledge", () => {
+  it("answers from the sources and scores retrieval and citations", async () => {
+    const calls = fakeCalls(async () => answer("€29 a month [1]. See [5]."))
+    calls.retrieve = vi.fn(async () => ragSources)
+    calls.judge = vi.fn(async () => ({
+      correctness: 5,
+      relevance: 5,
+      clarity: 5,
+      faithfulness: 4,
+      reason: "",
+    }))
+    const report = await runRag(calls)
+
+    expect(calls.retrieve).toHaveBeenCalledWith(
+      "What does the Commuter plan cost?"
+    )
+    const input = vi.mocked(calls.generate).mock.calls[0][0]
+    expect(input.system).toContain('<source id="1" title="Memberships">')
+    expect(vi.mocked(calls.judge).mock.calls[0][0].sources).toEqual(ragSources)
+
+    expect(report.knowledge).toBe("kestrel")
+    expect(report.results[0].rag).toEqual({
+      sources: [
+        { n: 1, chunkId: "memberships#1", score: 0.6 },
+        { n: 2, chunkId: "bikes#0", score: 0.4 },
+      ],
+      hasEvidence: true,
+      evidenceRank: 1,
+      cited: [1, 5],
+      invalidCitations: [5],
+    })
+    expect(report.summaries[0].rag).toEqual({
+      evidenceCases: 1,
+      evidenceFound: 1,
+      faithfulness: 4,
+      citedAnswers: 3,
+      answers: 3,
+      invalidCitations: 3,
+    })
+  })
+
+  it("strips citations from earlier answers, as the chat does", async () => {
+    const calls = fakeCalls(async () => answer("€29 [1]."))
+    calls.retrieve = vi.fn(async () => ragSources)
+    await runRag(calls)
+
+    const followUp = vi
+      .mocked(calls.generate)
+      .mock.calls.find(([input]) => input.input === "How much is it?")![0]
+    expect(followUp.history).toEqual([
+      { role: "user", content: "Tell me about the Commuter plan." },
+      { role: "assistant", content: "It includes the K1 bike." },
+    ])
+  })
+
+  it("asks the same questions without sources when knowledge is off", async () => {
+    const calls = fakeCalls(async () => answer("I don't know."))
+    const report = await runRag(calls, "none")
+
+    expect(calls.retrieve).not.toHaveBeenCalled()
+    expect(vi.mocked(calls.generate).mock.calls[0][0].system).toBe("Be brief.")
+    expect(vi.mocked(calls.judge).mock.calls[0][0].sources).toBeUndefined()
+    expect(report.knowledge).toBe("none")
+    expect(report.summaries[0].rag).toBeUndefined()
   })
 })

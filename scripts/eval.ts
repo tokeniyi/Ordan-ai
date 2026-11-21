@@ -22,6 +22,7 @@ const { values } = parseArgs({
     judge: { type: "string" },
     history: { type: "string" },
     budget: { type: "string" },
+    knowledge: { type: "string" },
     "no-judge": { type: "boolean", default: false },
     "no-cache": { type: "boolean", default: false },
     concurrency: { type: "string" },
@@ -42,6 +43,9 @@ if (values.help) {
                        window or full (default: summary, as in the chat)
   --budget <tokens>    History budget for multi-turn cases (default: the
                        dataset's, or the chat's)
+  --knowledge <id>     Documents to answer from: kestrel or none (default:
+                       the dataset's, so "none" asks its questions without
+                       sources)
   --no-judge           Skip the judge and run only deterministic checks
   --no-cache           Call the models again instead of reusing cached results
   --concurrency <n>    Calls in flight at once
@@ -62,6 +66,7 @@ async function main() {
   const { toMarkdown } = await import("@/features/evals/report")
   const { PROMPTS } = await import("@/features/prompts")
   const { HISTORY_STRATEGIES } = await import("@/features/history/types")
+  const { KNOWLEDGE_BASES } = await import("@/features/rag/types")
 
   if (!hasApiKey()) {
     throw new Error("KILO_API_KEY is not set. Add it to .env.local.")
@@ -109,6 +114,13 @@ async function main() {
     throw new Error("--budget must be a positive number of tokens.")
   }
 
+  const knowledge = KNOWLEDGE_BASES.find((k) => k === values.knowledge)
+  if (values.knowledge && !knowledge) {
+    throw new Error(
+      `Unknown knowledge base "${values.knowledge}". Use ${KNOWLEDGE_BASES.join(", ")}.`
+    )
+  }
+
   const model = values.model ?? EVAL_MODEL
   const judgeModel = values.judge ?? JUDGE_MODEL
   const judge = !values["no-judge"]
@@ -124,6 +136,11 @@ async function main() {
     )
   }
 
+  const sources = knowledge ?? dataset.knowledge
+  if (sources) {
+    console.log(`Knowledge: ${sources}`)
+  }
+
   let done = 0
   const report = await runEval({
     dataset: { ...dataset, cases },
@@ -132,6 +149,7 @@ async function main() {
     judgeModel,
     judge,
     history: { strategy, budget },
+    knowledge,
     concurrency: Number(values.concurrency ?? CONCURRENCY),
     cache: values["no-cache"] ? undefined : fileCache(path.resolve(CACHE_DIR)),
     onResult: (result) => {
@@ -181,6 +199,11 @@ async function main() {
       "out tokens": s.avgOutputTokens,
       ...(s.avgSummaryTokens !== undefined && {
         "summary tokens": s.avgSummaryTokens,
+      }),
+      ...(s.rag && {
+        found: `${s.rag.evidenceFound}/${s.rag.evidenceCases}`,
+        faithful: s.rag.faithfulness,
+        cited: `${s.rag.citedAnswers}/${s.rag.answers}`,
       }),
       latency: `${(s.avgLatencyMs / 1000).toFixed(1)}s`,
       errors: s.errors,

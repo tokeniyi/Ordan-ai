@@ -7,6 +7,7 @@ import { type HistoryRequest } from "@/features/history/request"
 export interface ChatRequest {
   model: string
   promptId: string
+  knowledge?: string
   history?: HistoryRequest
   messages: { id: string; role: string }[]
 }
@@ -31,25 +32,29 @@ async function streamReply(text: string, metadata?: ChatMetadata) {
 }
 
 // Answers /api/chat and /api/suggestions in the browser, so tests never call
-// a model. Each chat reply names the prompt it was sent with. `metadata`
-// stands in for what the server reports about the context. Returns the chat
-// requests the page made.
+// a model. Each chat reply names the prompt it was sent with, unless `reply`
+// says otherwise. `metadata` stands in for what the server reports about the
+// context and the sources. Returns the chat requests the page made.
 export async function mockModel(
   page: Page,
   {
     metadata,
-  }: { metadata?: (request: ChatRequest) => ChatMetadata | undefined } = {}
+    reply,
+  }: {
+    metadata?: (request: ChatRequest) => ChatMetadata | undefined
+    reply?: (request: ChatRequest) => string
+  } = {}
 ) {
   const requests: ChatRequest[] = []
 
   await page.route("**/api/chat", async (route) => {
     const body = route.request().postDataJSON() as ChatRequest
     requests.push(body)
-    const reply = await streamReply(
-      `Mock reply from the ${body.promptId} prompt.`,
+    const response = await streamReply(
+      reply?.(body) ?? `Mock reply from the ${body.promptId} prompt.`,
       metadata?.(body)
     )
-    await route.fulfill({ status: 200, ...reply })
+    await route.fulfill({ status: 200, ...response })
   })
 
   await page.route("**/api/suggestions", (route) =>

@@ -5,10 +5,15 @@ import { cacheKey, type EvalCache } from "@/features/evals/cache"
 import { runChecks } from "@/features/evals/checks"
 import { MAX_OUTPUT_TOKENS, MAX_RETRIES } from "@/features/evals/config"
 import { isRateLimitError } from "@/features/evals/errors"
-import { JUDGE_SYSTEM_PROMPT, judgeAnswer } from "@/features/evals/judge"
+import {
+  JUDGE_SYSTEM_PROMPT,
+  judgeAnswer,
+  RAG_JUDGE_SYSTEM_PROMPT,
+} from "@/features/evals/judge"
 import { summarize } from "@/features/evals/summarize"
 import {
   type CaseContext,
+  type CaseRag,
   type CaseResult,
   type Dataset,
   type EvalCase,
@@ -26,6 +31,11 @@ import {
 import { type HistoryMessage } from "@/features/history/types"
 import { buildPrompt } from "@/features/prompts"
 import { type PromptDefinition } from "@/features/prompts/types"
+import { checkCitations, stripCitations } from "@/features/rag/citations"
+import { retrieveKestrel } from "@/features/rag/kestrel"
+import { withSources } from "@/features/rag/prompt"
+import { type KnowledgeBase, type RagSource } from "@/features/rag/types"
+import { firstRelevantRank } from "@/features/search/metrics"
 
 export interface Answer {
   text: string
@@ -64,6 +74,8 @@ export interface EvalCalls {
   generate: (input: GenerateInput) => Promise<Answer>
   judge: typeof judgeAnswer
   summarize: (input: SummarizeInput) => Promise<Summary>
+  // Finds the sources for a question. Runs locally, so it is not cached.
+  retrieve: (query: string) => Promise<RagSource[]>
 }
 
 async function generateAnswer({
@@ -114,11 +126,13 @@ const defaultCalls: EvalCalls = {
   generate: generateAnswer,
   judge: judgeAnswer,
   summarize: summarizeHistory,
+  retrieve: async (query) => (await retrieveKestrel(query)).sources,
 }
 
 interface RunContext {
   calls: EvalCalls
   history: HistorySettings
+  knowledge: KnowledgeBase
   model: string
   judgeModel: string
   judge: boolean
@@ -205,14 +219,22 @@ async function runCase(
   let history: ModelMessage[] = []
   let caseContext: CaseContext | undefined
   let summaryCost = 0
+  let sources: RagSource[] | undefined
 
   let answer: Answer
   try {
+    // As in the chat route: sources for the newest question go into the
+    // system prompt before the history is fitted to the budget.
+    if (context.knowledge !== "none") {
+      sources = await context.calls.retrieve(testCase.input)
+      system = withSources(system, sources)
+    }
+
     if (testCase.history?.length) {
       ;({ system, history, caseContext, summaryCost } = await prepareHistory(
         context,
         testCase,
-        built.system,
+        system,
         examples
       ))
     }
@@ -255,6 +277,7 @@ async function runCase(
   }
 
   const checks = runChecks(testCase.checks ?? [], answer.text)
+  const rag = sources && ragResult(testCase, sources, answer.text)
   const result: CaseResult = {
     ...base,
     answer: answer.text,
@@ -265,6 +288,7 @@ async function runCase(
     outputTokens: answer.outputTokens,
     costUsd: answer.costUsd + summaryCost,
     ...(caseContext && { context: caseContext }),
+    ...(rag && { rag }),
   }
 
   if (!context.judge) {
@@ -281,12 +305,18 @@ async function runCase(
         input: testCase.input,
         reference: testCase.reference,
         answer: answer.text,
+        // Left out without sources, so earlier cache keys are unchanged.
+        ...(sources && {
+          ragSystem: RAG_JUDGE_SYSTEM_PROMPT,
+          sources: sources.map((source) => [source.n, source.text]),
+        }),
       }),
       () =>
         context.calls.judge({
           modelId: context.judgeModel,
           testCase,
           answer: answer.text,
+          sources,
         })
     )
     result.judge = scores
@@ -314,7 +344,17 @@ async function prepareHistory(
   ].map((turn, index) => ({
     id: `${testCase.id}-${index}`,
     role: turn.role,
-    parts: [{ type: "text" as const, text: turn.content }],
+    parts: [
+      {
+        type: "text" as const,
+        // Earlier answers in knowledge cases were written with sources, and
+        // the chat strips their citations, so the eval does too.
+        text:
+          context.knowledge !== "none" && turn.role === "assistant"
+            ? stripCitations(turn.content)
+            : turn.content,
+      },
+    ],
   }))
 
   const usage = { input: 0, output: 0, cost: 0 }
@@ -375,6 +415,26 @@ async function prepareHistory(
   }
 }
 
+// Where the case's evidence ranked among the sources, and what the answer
+// cited.
+export function ragResult(
+  testCase: EvalCase,
+  sources: RagSource[],
+  answer: string
+): CaseRag {
+  const { cited, invalid } = checkCitations(answer, sources.length)
+  const evidenceRank = testCase.retrieval
+    ? firstRelevantRank(sources, testCase.retrieval)
+    : undefined
+  return {
+    sources: sources.map(({ n, chunkId, score }) => ({ n, chunkId, score })),
+    hasEvidence: Boolean(testCase.retrieval),
+    ...(evidenceRank !== undefined && { evidenceRank }),
+    cited,
+    invalidCitations: invalid,
+  }
+}
+
 export async function runEval({
   dataset,
   prompts,
@@ -382,6 +442,7 @@ export async function runEval({
   judgeModel,
   judge = true,
   history,
+  knowledge,
   concurrency,
   cache,
   calls = defaultCalls,
@@ -394,6 +455,8 @@ export async function runEval({
   judge?: boolean
   // How multi-turn cases handle their history. Defaults to the chat's.
   history?: Partial<HistorySettings>
+  // The documents to answer from. Defaults to the dataset's, or none.
+  knowledge?: KnowledgeBase
   concurrency: number
   cache?: EvalCache
   calls?: EvalCalls
@@ -408,6 +471,7 @@ export async function runEval({
   }
   const context: RunContext = {
     history: settings,
+    knowledge: knowledge ?? dataset.knowledge ?? "none",
     model,
     judgeModel,
     judge,
@@ -434,6 +498,7 @@ export async function runEval({
     model,
     judgeModel: judge ? judgeModel : "none",
     history: settings,
+    ...((dataset.knowledge || knowledge) && { knowledge: context.knowledge }),
     summaries: summarize(prompts, results),
     results,
     calls: context.count,

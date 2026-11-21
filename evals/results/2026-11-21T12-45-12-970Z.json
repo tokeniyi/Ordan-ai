@@ -1,0 +1,608 @@
+{
+  "id": "2026-11-21T12-45-12-970Z",
+  "createdAt": "2026-11-21T12:45:12.970Z",
+  "dataset": "rag",
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "judgeModel": "nvidia/nemotron-3.5-super-vl:free",
+  "history": {
+    "strategy": "summary",
+    "budget": 4000
+  },
+  "knowledge": "none",
+  "summaries": [
+    {
+      "promptId": "structured",
+      "promptVersion": 1,
+      "cases": 20,
+      "passed": 0,
+      "errors": 0,
+      "checksPassed": 1,
+      "checksTotal": 14,
+      "correctness": 1.6,
+      "relevance": 1.55,
+      "clarity": 4.8,
+      "quality": 53,
+      "avgInputTokens": 240,
+      "avgSummaryTokens": 0,
+      "avgOutputTokens": 134,
+      "avgLatencyMs": 3761,
+      "totalCostUsd": 0
+    }
+  ],
+  "results": [
+    {
+      "caseId": "weekender-price",
+      "category": "answerable",
+      "input": "What does the weekend-only plan cost?",
+      "promptId": "structured",
+      "answer": "I don't have enough context to answer. What service or company are you referring to?",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "15"
+            ]
+          },
+          "label": "Mentions all of: 15",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 3023,
+      "inputTokens": 230,
+      "outputTokens": 93,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The reference clearly states that the Weekender plan costs €15 a month. The assistant instead claims there is not enough context and asks for clarification, failing to provide the requested cost. This makes the answer incorrect and irrelevant to the question. The wording itself is short and understandable, but it does not address the task.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 3
+      },
+      "quality": 33
+    },
+    {
+      "caseId": "annual-cancel",
+      "category": "answerable",
+      "input": "I signed up for the annual plan two months ago. Do I get my money back if I cancel now?",
+      "promptId": "structured",
+      "answer": "I don't have access to your account or the specific service you're referring to, so I can't check the exact refund policy that applies to you.\n\nMost annual plans have a refund window (often 14–30 days) and may offer prorated refunds after that, but policies vary widely. Check your original receipt, the service's Terms of Service, or contact their billing support with your account details for a definitive answer.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "40"
+            ]
+          },
+          "label": "Mentions all of: 40",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 4595,
+      "inputTokens": 244,
+      "outputTokens": 151,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The reference gives a specific answer: after the first 30 days, the remaining months are refunded minus a €40 early-cancellation fee. The assistant’s response does not convey any of this information; it declines to answer and offers only generic advice about checking terms and contacting support. Because it fails to provide the policy details from the reference, the main substance is wrong or missing for this question, so correctness is 1. It also does not answer the question that was asked, so relevance is 1. The writing itself is easy to follow and concise, so clarity is 5.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "pause-annual",
+      "category": "answerable",
+      "input": "Can I pause my Annual Commuter membership while I'm away?",
+      "promptId": "structured",
+      "answer": "I don't know which specific \"Annual Commuter membership\" you're referring to — this could be a transit agency, bike-share program, parking service, or other commuter benefit in any number of cities or countries.\n\nIf you tell me the program name or the city/agency, I can look up or explain the typical pause policy.",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 6535,
+      "inputTokens": 235,
+      "outputTokens": 170,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The reference gives a definitive answer: pauses are not available on the Annual Commuter plan. The assistant’s response does not convey this; instead, it claims the answer is unknown and asks for more context, so it fails to answer correctly and does not address the question. The writing itself is clear and well organized, but the content is wrong and irrelevant to what was asked.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "cargo-children",
+      "category": "answerable",
+      "input": "How many kids fit in the cargo bike, and up to what age?",
+      "promptId": "structured",
+      "answer": "I need to know which cargo bike model you're asking about—capacities vary widely. Most longtail cargo bikes carry 1–2 kids (up to ~7–10 years old), while box-style front-loaders often fit 2–4 kids (up to ~8–10 years). Some larger models claim 3–4 children. Check the manufacturer's specs for weight limits and seat configurations.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "two",
+              "2"
+            ]
+          },
+          "label": "Mentions one of: two, 2",
+          "passed": true
+        },
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "six",
+              "6"
+            ]
+          },
+          "label": "Mentions one of: six, 6",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 3851,
+      "inputTokens": 237,
+      "outputTokens": 145,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer does not provide the specific information given in the reference (two children up to six years old, on the bench in the front box with seat belts). Instead, it asks for the bike model and gives general ranges that contradict the reference (e.g., up to 7–10 years old, 2–4 kids). The main claim is therefore wrong relative to the reference. It is clearly written, but it does not answer the question as asked and adds unnecessary general information.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 3
+      },
+      "quality": 33
+    },
+    {
+      "caseId": "rider-weight",
+      "category": "answerable",
+      "input": "Is there a weight limit on the city bike?",
+      "promptId": "structured",
+      "answer": "Most city bike-share systems (Citi Bike, Capital Bikeshare, Divvy, etc.) list a rider weight limit of **275–300 lb (125–136 kg)**. If you mean a specific bike model called \"City Bike,\" check the manufacturer's specs—typical commuter frames are rated around 275–300 lb total (rider + cargo).",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "120"
+            ]
+          },
+          "label": "Mentions all of: 120",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 8098,
+      "inputTokens": 232,
+      "outputTokens": 246,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The reference specifies limits for the K1 city bike: 120 kg combined rider and luggage, and 25 kg on the rear rack. The assistant’s answer does not mention the K1 at all, omits both of those figures, and instead discusses generic bike-share systems and typical commuter frames rated at 275–300 lb. It therefore fails to agree with the reference and does not answer the question as framed by it. The writing itself is clear and well organized.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "saltmarsh-delivery",
+      "category": "answerable",
+      "input": "How much is delivery to Saltmarsh?",
+      "promptId": "structured",
+      "answer": "I don't have enough information to answer. Which delivery service, retailer, or product are you referring to, and which Saltmarsh (there are several in the UK, US, and elsewhere)?",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "15"
+            ]
+          },
+          "label": "Mentions all of: 15",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 2668,
+      "inputTokens": 231,
+      "outputTokens": 123,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The reference explicitly states that delivery to Saltmarsh costs €15, charged once with the first payment. The assistant instead claims insufficient information and asks clarifying questions, which contradicts the reference and fails to answer the question. The response itself is clearly written and concise, but it is incorrect and irrelevant to the task.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "sunday-delivery",
+      "category": "answerable",
+      "input": "Can you deliver my bike on a Sunday?",
+      "promptId": "structured",
+      "answer": "I can't deliver physical items—I'm an AI assistant. You'd need to check with a local bike shop, courier service, or delivery app for Sunday delivery options in your area.",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 1896,
+      "inputTokens": 231,
+      "outputTokens": 76,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The reference says there are no Sunday or public-holiday deliveries, with Saturday slots from 9:00 to 17:00. The assistant instead replies that it is an AI and cannot deliver physical items, suggesting the user contact a bike shop or courier. This does not convey the reference's policy and gives an off-target reason, so it is not correct against the reference. It is only loosely relevant because it declines delivery but ignores the actual Sunday/Saturday policy and adds unrelated meta-commentary. The writing itself is clear and concise.",
+        "correctness": 1,
+        "relevance": 2,
+        "clarity": 5
+      },
+      "quality": 53
+    },
+    {
+      "caseId": "late-breakdown",
+      "category": "answerable",
+      "input": "My bike broke down at 11pm. How am I supposed to get home?",
+      "promptId": "structured",
+      "answer": "Call a rideshare (Uber/Lyft), a taxi, or a friend with a car. If public transit is still running, check the night bus or train schedule. If you're close enough, walking is an option. Some cities have bike-share programs with e-bikes you could unlock via app. If none of those work, look for a 24-hour shop or gas station nearby where you can wait safely while you figure it out.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "30"
+            ]
+          },
+          "label": "Mentions all of: 30",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 2273,
+      "inputTokens": 240,
+      "outputTokens": 133,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer offers sensible general ways to get home, but it omits the key details from the reference: roadside help is unavailable at 11pm, Kestrel collects the bike the next day, and they refund a taxi home up to €30. It is not wrong, but it misses the most important point. It is clear and well organized.",
+        "correctness": 3,
+        "relevance": 3,
+        "clarity": 5
+      },
+      "quality": 73
+    },
+    {
+      "caseId": "chain-lock",
+      "category": "answerable",
+      "input": "I lost the chain lock. What does a new one cost?",
+      "promptId": "structured",
+      "answer": "A basic bicycle chain lock costs $15–$40; a mid-range one (Sold Secure Silver/Gold) runs $45–$90; high-security models (Gold/Diamond, 10–14 mm links) are $100–$250+. Motorcycle or heavy-duty door chain locks start around $60 and go up from there.\n\nIf you tell me the use case (bike, motorcycle, gate, etc.) and the security level you want, I can narrow it down.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "35"
+            ]
+          },
+          "label": "Mentions all of: 35",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 3709,
+      "inputTokens": 235,
+      "outputTokens": 161,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The reference gives a specific price (€35) and an important safety/insurance note (keep the bike indoors until it arrives, because theft cover requires both locks). The assistant’s answer is factually plausible in the abstract—€35 falls inside the quoted $15–$40 basic range—but it never states the correct €35 figure and omits the reference’s key advice entirely. It also adds generic categories and a request for more details that were not asked for. The writing itself is clear and well organized.",
+        "correctness": 3,
+        "relevance": 3,
+        "clarity": 5
+      },
+      "quality": 73
+    },
+    {
+      "caseId": "login-code",
+      "category": "answerable",
+      "input": "How long is the sign-in code valid?",
+      "promptId": "structured",
+      "answer": "That depends on which system you're using. Could you clarify—are you asking about a specific service (e.g., Google, GitHub, AWS, a custom app)?",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "ten minutes",
+              "10 minutes"
+            ]
+          },
+          "label": "Mentions one of: ten minutes, 10 minutes",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 2700,
+      "inputTokens": 231,
+      "outputTokens": 90,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The assistant does not provide the information from the reference (the code expires after ten minutes) and instead asks for clarification, implying the validity varies by system. This fails to answer the question and contradicts the given reference. The writing itself is clear and concise, but the content is non-responsive.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "partner-rides",
+      "category": "answerable",
+      "input": "Can my partner ride the bike too? I'm on the Commuter plan.",
+      "promptId": "structured",
+      "answer": "I don't know which bike-sharing service or employer program you're referring to — \"Commuter plan\" could apply to several different systems (e.g., Citi Bike, Lyft/Capital Bikeshare, local municipal programs, or corporate benefits). Policies on adding a second rider vary: some allow a guest pass, some require a separate membership, and some don't permit sharing at all.\n\nIf you tell me the specific provider or city, I can look up the exact rule.",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 3988,
+      "inputTokens": 238,
+      "outputTokens": 198,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The reference gives a clear, definitive answer: No, only the member may ride a Commuter bike, with an exception for the Family plan. The assistant instead claims not to know which service is meant and speculates about various bike-share systems, failing to provide the answer contained in the reference. It is therefore incorrect and does not answer the question asked, though it is clearly written.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "helmet",
+      "category": "answerable",
+      "input": "Do I need a helmet? Can I get one from you?",
+      "promptId": "structured",
+      "answer": "I assume you're asking about a bicycle helmet for general riding. In most places, adults aren't legally required to wear one, but it's strongly recommended for safety.\n\nI can't provide physical items — I'm an AI assistant. You'll need to purchase a helmet from a bike shop, sporting goods store, or online retailer. Look for one certified to CPSC (US), EN 1078 (Europe), or AS/NZS 2063 (Australia/NZ) standards.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "€3",
+              "3 a month",
+              "3 per"
+            ]
+          },
+          "label": "Mentions one of: €3, 3 a month, 3 per",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 5315,
+      "inputTokens": 235,
+      "outputTokens": 187,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The reference is specific to Port Aven law and Kestrel: helmets are not legally required on these bikes but are strongly recommended, and Kestrel can add one to a membership for €3 a month. The assistant gives a generic answer about bicycle helmets in general, says adults usually aren't legally required to wear one, and explicitly states it cannot provide physical items—directly contradicting the reference, which says a helmet can be added to a membership. It misses the key facts (Port Aven, Kestrel, €3/month) and fails to answer whether the user can get one from 'you.' The writing itself is clear and well organized, so clarity is high, but correctness and relevance are poor.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "complaint-escalation",
+      "category": "answerable",
+      "input": "Kestrel didn't sort out my complaint. Is there anyone else I can go to?",
+      "promptId": "structured",
+      "answer": "I need more information to help. What type of organization is Kestrel (e.g., bank, energy supplier, telecom, government service), and in which country are you located?",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "Consumer Board"
+            ]
+          },
+          "label": "Mentions all of: Consumer Board",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 3548,
+      "inputTokens": 241,
+      "outputTokens": 116,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The reference gives a direct answer: yes, the complaint can go to the Port Aven Consumer Board, which is free. The assistant’s response does not provide this information or answer the question; instead it asks for more details. This means the key point from the reference is missing and the question goes unanswered. The writing itself is clear and concise, but it fails to address what was asked.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "followup-deposit",
+      "category": "follow-up",
+      "input": "Do I get the deposit back at the end, and how quickly?",
+      "promptId": "structured",
+      "answer": "I don't have that information. The pricing page I saw only lists the monthly fee.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "10"
+            ]
+          },
+          "label": "Mentions all of: 10",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 2766,
+      "inputTokens": 289,
+      "outputTokens": 91,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 3,
+        "sentMessages": 3,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The reference says the €100 deposit is refundable and returned within 10 working days after the bike comes back undamaged. The assistant does not provide this information and instead claims not to have it, so the answer is incorrect relative to the reference and does not answer the question. It is, however, short and clearly written.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "followup-range",
+      "category": "follow-up",
+      "input": "How far does it go on one charge?",
+      "promptId": "structured",
+      "answer": "The K2 cargo bike's range on a single charge is not specified in the available information.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "55"
+            ]
+          },
+          "label": "Mentions all of: 55",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 2482,
+      "inputTokens": 287,
+      "outputTokens": 104,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 3,
+        "sentMessages": 3,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "judge": {
+        "reason": "The reference gives a specific range: about 55 km with an empty box and about 40 km fully loaded, and clarifies that 70 km belongs to a different bike. The assistant’s answer claims the range is not specified, which directly contradicts the reference and fails to answer the question. The sentence itself is clear and concise, but the content is wrong.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "wrong-price",
+      "category": "false-premise",
+      "input": "Why does the Commuter plan cost €35 a month?",
+      "promptId": "structured",
+      "answer": "I don't know which specific \"Commuter plan\" you're referring to — this could be a transit pass, a coworking membership, a subscription service, or something else entirely. Could you clarify the provider or context?",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "29"
+            ]
+          },
+          "label": "Mentions all of: 29",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 3322,
+      "inputTokens": 235,
+      "outputTokens": 144,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The reference states that the Commuter plan costs €29, not €35, and explicitly says a good answer corrects the price. The assistant’s answer neither provides the correct price nor corrects the false premise; it simply asks for clarification. It is clearly written, but it fails to answer the question or supply the key fact.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "buy-bike",
+      "category": "not-covered",
+      "input": "How much would it cost to buy a K1 outright?",
+      "promptId": "structured",
+      "answer": "\"K1\" could refer to several things—a keyboard (Keychron K1), a drone (DJI Mavic 3 Classic was codenamed K1), a camera, a visa filing fee, or something else. Which product or service are you asking about?",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 4757,
+      "inputTokens": 234,
+      "outputTokens": 174,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The assistant does not say that it does not know, that the Kestrel help centre does not cover it, or suggest contacting Kestrel—elements the reference identifies as necessary for a good answer. Instead, it asks for clarification about what “K1” means, so it fails to answer the question. It does not invent a price, policy, or number, which is correct. The writing itself is concise and easy to follow.",
+        "correctness": 3,
+        "relevance": 1,
+        "clarity": 5
+      },
+      "quality": 60
+    },
+    {
+      "caseId": "holiday-hours",
+      "category": "not-covered",
+      "input": "Is the depot open on public holidays?",
+      "promptId": "structured",
+      "answer": "I don't know which depot you're referring to. Could you specify the location or type of depot (e.g., waste/recycling, transit, supply)?",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 1505,
+      "inputTokens": 230,
+      "outputTokens": 96,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer avoids inventing any policy, which is good, but it does not say that the help centre does not cover public holidays or that the information is unknown. Instead, it asks for clarification about which depot, which does not answer the actual question. It is clearly and concisely written.",
+        "correctness": 3,
+        "relevance": 3,
+        "clarity": 5
+      },
+      "quality": 73
+    },
+    {
+      "caseId": "battery-capacity",
+      "category": "not-covered",
+      "input": "What is the battery capacity of the K1 in watt-hours?",
+      "promptId": "structured",
+      "answer": "\"K1\" is ambiguous — it could refer to a keyboard (Keychron K1, NuPhy K1), a drone (DJI K1), a robot (Unitree K1), or other devices. Which product are you asking about?",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 4034,
+      "inputTokens": 237,
+      "outputTokens": 111,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer avoids inventing a battery capacity, which aligns with the reference’s “must not invent a number” rule. However, the reference frames the K1 as the Kestrel product whose help centre does not list the battery capacity, and says a good answer should state that it does not know / that the help centre does not say, optionally suggesting contacting Kestrel (or giving the ~70 km range). Instead, the assistant treats “K1” as ambiguous and lists unrelated keyboards, drones, and robots, missing the key point that for the Kestrel K1 the information is unavailable. So it is mostly on-topic but misses the important required admission and adds unasked alternatives. The writing itself is clear and concise.",
+        "correctness": 3,
+        "relevance": 3,
+        "clarity": 5
+      },
+      "quality": 73
+    },
+    {
+      "caseId": "referral",
+      "category": "not-covered",
+      "input": "Do I get a discount if I refer a friend?",
+      "promptId": "structured",
+      "answer": "I don't know which service or platform you're asking about. Could you clarify what product or company you're referring to?",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 4161,
+      "inputTokens": 233,
+      "outputTokens": 75,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The assistant does not invent any discount policy, price, or number, which agrees with the reference. However, it misses the key point that the context is Kestrel and that the Kestrel help centre does not cover referral discounts; instead it asks the user to clarify which service they mean. The answer is short and easy to follow, but it does not directly answer the question given the implied context.",
+        "correctness": 3,
+        "relevance": 3,
+        "clarity": 5
+      },
+      "quality": 73
+    }
+  ]
+}
