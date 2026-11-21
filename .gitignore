@@ -158,3 +158,6 @@ evals/.cache/
 # Playwright
 test-results/
 playwright-report/
+
+# Model weights downloaded by Transformers.js
+.cache/
