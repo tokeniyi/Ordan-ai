@@ -1,0 +1,338 @@
+{
+  "id": "2026-11-21T11-45-18-306Z",
+  "createdAt": "2026-11-21T11:45:18.306Z",
+  "model": "Xenova/all-MiniLM-L6-v2",
+  "cases": 24,
+  "summaries": [
+    {
+      "strategy": "fixed",
+      "method": "semantic",
+      "chunks": 34,
+      "recall": {
+        "1": 0.417,
+        "3": 0.625,
+        "5": 0.833
+      },
+      "mrr": 0.57,
+      "mrrByKind": {
+        "paraphrase": 0.558,
+        "keyword": 0.594
+      }
+    },
+    {
+      "strategy": "fixed",
+      "method": "keyword",
+      "chunks": 34,
+      "recall": {
+        "1": 0.25,
+        "3": 0.417,
+        "5": 0.5
+      },
+      "mrr": 0.368,
+      "mrrByKind": {
+        "paraphrase": 0.208,
+        "keyword": 0.688
+      }
+    },
+    {
+      "strategy": "sentence",
+      "method": "semantic",
+      "chunks": 35,
+      "recall": {
+        "1": 0.625,
+        "3": 0.792,
+        "5": 0.875
+      },
+      "mrr": 0.731,
+      "mrrByKind": {
+        "paraphrase": 0.646,
+        "keyword": 0.9
+      }
+    },
+    {
+      "strategy": "sentence",
+      "method": "keyword",
+      "chunks": 35,
+      "recall": {
+        "1": 0.25,
+        "3": 0.458,
+        "5": 0.5
+      },
+      "mrr": 0.372,
+      "mrrByKind": {
+        "paraphrase": 0.235,
+        "keyword": 0.646
+      }
+    },
+    {
+      "strategy": "recursive",
+      "method": "semantic",
+      "chunks": 52,
+      "recall": {
+        "1": 0.625,
+        "3": 0.833,
+        "5": 0.958
+      },
+      "mrr": 0.751,
+      "mrrByKind": {
+        "paraphrase": 0.69,
+        "keyword": 0.875
+      }
+    },
+    {
+      "strategy": "recursive",
+      "method": "keyword",
+      "chunks": 52,
+      "recall": {
+        "1": 0.25,
+        "3": 0.375,
+        "5": 0.458
+      },
+      "mrr": 0.344,
+      "mrrByKind": {
+        "paraphrase": 0.188,
+        "keyword": 0.656
+      }
+    },
+    {
+      "strategy": "recursive-headings",
+      "method": "semantic",
+      "chunks": 52,
+      "recall": {
+        "1": 0.625,
+        "3": 0.875,
+        "5": 0.958
+      },
+      "mrr": 0.748,
+      "mrrByKind": {
+        "paraphrase": 0.653,
+        "keyword": 0.938
+      }
+    },
+    {
+      "strategy": "recursive-headings",
+      "method": "keyword",
+      "chunks": 52,
+      "recall": {
+        "1": 0.25,
+        "3": 0.375,
+        "5": 0.458
+      },
+      "mrr": 0.351,
+      "mrrByKind": {
+        "paraphrase": 0.199,
+        "keyword": 0.656
+      }
+    }
+  ],
+  "ranks": {
+    "fixed/semantic": {
+      "price-commuter": 4,
+      "student-discount": 1,
+      "family-deposit": 3,
+      "pause-holiday": 4,
+      "cancel-notice": 1,
+      "failed-payment": 2,
+      "k1-range": 7,
+      "charge-time": 6,
+      "swap-station": 3,
+      "cold-range": 4,
+      "service-interval": 1,
+      "roadside-time": 1,
+      "damage-cap": 1,
+      "pressure-washer": 1,
+      "delivery-towns": null,
+      "missed-delivery": 1,
+      "theft-excess": 2,
+      "theft-late": 4,
+      "liability": 1,
+      "unlock-app": 5,
+      "ride-history": 1,
+      "minimum-age": 1,
+      "abroad": null,
+      "phone-number": 2
+    },
+    "fixed/keyword": {
+      "price-commuter": 1,
+      "student-discount": 2,
+      "family-deposit": 1,
+      "pause-holiday": 4,
+      "cancel-notice": null,
+      "failed-payment": null,
+      "k1-range": 6,
+      "charge-time": 2,
+      "swap-station": 6,
+      "cold-range": null,
+      "service-interval": null,
+      "roadside-time": null,
+      "damage-cap": 2,
+      "pressure-washer": 1,
+      "delivery-towns": 4,
+      "missed-delivery": null,
+      "theft-excess": 1,
+      "theft-late": null,
+      "liability": null,
+      "unlock-app": 2,
+      "ride-history": 1,
+      "minimum-age": 1,
+      "abroad": null,
+      "phone-number": null
+    },
+    "sentence/semantic": {
+      "price-commuter": 5,
+      "student-discount": 1,
+      "family-deposit": 1,
+      "pause-holiday": 4,
+      "cancel-notice": 1,
+      "failed-payment": 1,
+      "k1-range": 3,
+      "charge-time": 1,
+      "swap-station": 2,
+      "cold-range": null,
+      "service-interval": 1,
+      "roadside-time": 1,
+      "damage-cap": 1,
+      "pressure-washer": 1,
+      "delivery-towns": 8,
+      "missed-delivery": 2,
+      "theft-excess": 1,
+      "theft-late": 8,
+      "liability": 2,
+      "unlock-app": 1,
+      "ride-history": 1,
+      "minimum-age": 1,
+      "abroad": 1,
+      "phone-number": 1
+    },
+    "sentence/keyword": {
+      "price-commuter": 2,
+      "student-discount": 1,
+      "family-deposit": 1,
+      "pause-holiday": 7,
+      "cancel-notice": null,
+      "failed-payment": null,
+      "k1-range": 6,
+      "charge-time": 3,
+      "swap-station": 7,
+      "cold-range": null,
+      "service-interval": null,
+      "roadside-time": null,
+      "damage-cap": 2,
+      "pressure-washer": 1,
+      "delivery-towns": 5,
+      "missed-delivery": null,
+      "theft-excess": 1,
+      "theft-late": null,
+      "liability": null,
+      "unlock-app": 1,
+      "ride-history": 1,
+      "minimum-age": 2,
+      "abroad": 9,
+      "phone-number": 3
+    },
+    "recursive/semantic": {
+      "price-commuter": 2,
+      "student-discount": 1,
+      "family-deposit": 1,
+      "pause-holiday": 3,
+      "cancel-notice": 5,
+      "failed-payment": 2,
+      "k1-range": 1,
+      "charge-time": 1,
+      "swap-station": 1,
+      "cold-range": 1,
+      "service-interval": 1,
+      "roadside-time": 4,
+      "damage-cap": 1,
+      "pressure-washer": 1,
+      "delivery-towns": null,
+      "missed-delivery": 2,
+      "theft-excess": 2,
+      "theft-late": 4,
+      "liability": 1,
+      "unlock-app": 1,
+      "ride-history": 1,
+      "minimum-age": 1,
+      "abroad": 1,
+      "phone-number": 1
+    },
+    "recursive/keyword": {
+      "price-commuter": 1,
+      "student-discount": null,
+      "family-deposit": 1,
+      "pause-holiday": 7,
+      "cancel-notice": null,
+      "failed-payment": null,
+      "k1-range": 5,
+      "charge-time": 2,
+      "swap-station": 6,
+      "cold-range": null,
+      "service-interval": null,
+      "roadside-time": null,
+      "damage-cap": 2,
+      "pressure-washer": 1,
+      "delivery-towns": null,
+      "missed-delivery": null,
+      "theft-excess": 2,
+      "theft-late": null,
+      "liability": null,
+      "unlock-app": 1,
+      "ride-history": 1,
+      "minimum-age": 1,
+      "abroad": null,
+      "phone-number": 4
+    },
+    "recursive-headings/semantic": {
+      "price-commuter": 1,
+      "student-discount": 1,
+      "family-deposit": 1,
+      "pause-holiday": 5,
+      "cancel-notice": 3,
+      "failed-payment": 3,
+      "k1-range": 1,
+      "charge-time": 1,
+      "swap-station": 2,
+      "cold-range": 1,
+      "service-interval": 1,
+      "roadside-time": 4,
+      "damage-cap": 1,
+      "pressure-washer": 1,
+      "delivery-towns": null,
+      "missed-delivery": 3,
+      "theft-excess": 2,
+      "theft-late": 2,
+      "liability": 1,
+      "unlock-app": 1,
+      "ride-history": 1,
+      "minimum-age": 1,
+      "abroad": 1,
+      "phone-number": 1
+    },
+    "recursive-headings/keyword": {
+      "price-commuter": 1,
+      "student-discount": null,
+      "family-deposit": 1,
+      "pause-holiday": 8,
+      "cancel-notice": null,
+      "failed-payment": null,
+      "k1-range": 4,
+      "charge-time": 2,
+      "swap-station": 6,
+      "cold-range": null,
+      "service-interval": null,
+      "roadside-time": null,
+      "damage-cap": 2,
+      "pressure-washer": 1,
+      "delivery-towns": null,
+      "missed-delivery": null,
+      "theft-excess": 2,
+      "theft-late": null,
+      "liability": null,
+      "unlock-app": 1,
+      "ride-history": 1,
+      "minimum-age": 1,
+      "abroad": 7,
+      "phone-number": 4
+    }
+  }
+}

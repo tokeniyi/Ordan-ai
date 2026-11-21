@@ -98,6 +98,18 @@ The report then shows average input tokens per answer and, for the summary strat
 
 To add a whole new test set, create a file next to `core.ts` and add it to `datasets/index.ts`.
 
+## Retrieval evals
+
+`pnpm eval:retrieval` measures search, not answers. It runs the 24 questions in `features/search/eval/cases.ts` against every chunking strategy, with semantic and keyword search, and saves a report to `evals/retrieval/`. The embedding model runs locally, so it costs nothing and takes a few seconds. It does not use the Kilo rate limit.
+
+Each question names the passage that answers it. A chunk is relevant when it contains the whole passage. The report shows:
+
+- **Recall@k:** the share of questions with a relevant chunk in the top k, for k = 1, 3 and 5.
+- **MRR:** the mean of 1 / rank of the first relevant chunk, and 0 when none is in the top 10. Reported for all questions, and separately for questions worded differently from the pages and questions that reuse their words.
+- **The rank per question,** for every strategy and method, so a change can be traced to the questions it moved.
+
+To add a question, add an entry with its `docId` and `evidence`, a short passage copied exactly from that page. `features/search/corpus.test.ts` fails if the passage is not in the page, or is not whole in at least one chunk of every strategy. After changing the corpus or a chunker, run `pnpm index` before the eval.
+
 ## Compare runs fairly
 
 - Compare runs that used the same dataset, model and judge. The `/evals` page and the Markdown report show all three.
