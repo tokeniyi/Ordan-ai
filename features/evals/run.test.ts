@@ -49,7 +49,61 @@ function fakeCalls(generate: EvalCalls["generate"]): EvalCalls {
       clarity: 3,
       reason: "",
     })),
+    summarize: vi.fn(async () => ({
+      text: "- The user's name is Ada.",
+      inputTokens: 50,
+      outputTokens: 10,
+      costUsd: 0.01,
+    })),
   }
+}
+
+// A conversation long enough to be trimmed with a small budget: the name is
+// in the first turn, the question in the last.
+const longCase: Dataset = {
+  id: "history",
+  description: "",
+  historyBudget: 300,
+  cases: [
+    {
+      id: "name",
+      category: "recall",
+      history: [
+        { role: "user", content: "My name is Ada." },
+        { role: "assistant", content: "Nice to meet you, Ada." },
+        ...Array.from({ length: 6 }, (_, index) => [
+          {
+            role: "user" as const,
+            content: `Question ${index} ${"x ".repeat(80)}`,
+          },
+          {
+            role: "assistant" as const,
+            content: `Answer ${index} ${"y ".repeat(80)}`,
+          },
+        ]).flat(),
+      ],
+      input: "What is my name?",
+      reference: "Ada",
+    },
+  ],
+}
+
+function runHistory(
+  calls: EvalCalls,
+  strategy: "full" | "window" | "summary",
+  cache = memoryCache()
+) {
+  return runEval({
+    dataset: longCase,
+    prompts: [prompt],
+    model: "m",
+    judgeModel: "j",
+    judge: false,
+    history: { strategy },
+    concurrency: 1,
+    cache,
+    calls,
+  })
 }
 
 function run(calls: EvalCalls, cache = memoryCache(), judge = false) {
@@ -104,5 +158,83 @@ describe("runEval", () => {
     expect(calls.generate).toHaveBeenCalledTimes(1)
     expect(report.stoppedReason).toMatch(/rate limit/)
     expect(report.results[1].error).toMatch(/Skipped/)
+  })
+
+  it("sends one-turn cases without history", async () => {
+    const calls = fakeCalls(async () => answer("Paris."))
+    await run(calls)
+    expect(vi.mocked(calls.generate).mock.calls[0][0].history).toEqual([])
+    expect(calls.summarize).not.toHaveBeenCalled()
+  })
+})
+
+describe("runEval with history", () => {
+  it("sends every turn with the full strategy", async () => {
+    const calls = fakeCalls(async () => answer("Ada."))
+    const report = await runHistory(calls, "full")
+
+    const input = vi.mocked(calls.generate).mock.calls[0][0]
+    expect(input.history).toHaveLength(14)
+    expect(input.input).toBe("What is my name?")
+    expect(report.history).toEqual({ strategy: "full", budget: 300 })
+    expect(report.results[0].context).toMatchObject({
+      totalMessages: 15,
+      sentMessages: 15,
+      summarized: false,
+    })
+  })
+
+  it("drops the oldest turns with the window strategy", async () => {
+    const calls = fakeCalls(async () => answer("I don't know."))
+    const report = await runHistory(calls, "window")
+
+    const input = vi.mocked(calls.generate).mock.calls[0][0]
+    expect(input.history.length).toBeLessThan(14)
+    expect(report.results[0].context?.summarized).toBe(false)
+    expect(JSON.stringify(input.history)).not.toContain("Ada")
+    expect(input.system).toContain("<conversation_note>")
+    expect(calls.summarize).not.toHaveBeenCalled()
+  })
+
+  it("summarizes the oldest turns and counts the summary's cost", async () => {
+    const calls = fakeCalls(async () => answer("Ada."))
+    const report = await runHistory(calls, "summary")
+
+    const input = vi.mocked(calls.generate).mock.calls[0][0]
+    expect(input.system).toContain("The user's name is Ada.")
+    expect(report.results[0].context).toMatchObject({
+      summarized: true,
+      summaryInputTokens: 50,
+      summaryOutputTokens: 10,
+    })
+    expect(report.results[0].costUsd).toBeCloseTo(0.011)
+    expect(report.summaries[0].avgSummaryTokens).toBe(60)
+  })
+
+  it("caches summaries between runs", async () => {
+    const calls = fakeCalls(async () => answer("Ada."))
+    const cache = memoryCache()
+    await runHistory(calls, "summary", cache)
+    const second = await runHistory(calls, "summary", cache)
+
+    expect(calls.summarize).toHaveBeenCalledTimes(1)
+    expect(second.calls).toEqual({ made: 0, cached: 2 })
+  })
+
+  it("stops when summarizing hits the rate limit", async () => {
+    const calls = fakeCalls(async () => answer("Ada."))
+    calls.summarize = vi.fn(async () => {
+      throw new APICallError({
+        message: "Too Many Requests",
+        url: "",
+        requestBodyValues: {},
+        statusCode: 429,
+      })
+    })
+    const report = await runHistory(calls, "summary")
+
+    expect(calls.generate).not.toHaveBeenCalled()
+    expect(report.stoppedReason).toMatch(/rate limit/)
+    expect(report.results[0].error).toMatch(/Skipped/)
   })
 })

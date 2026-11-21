@@ -8,12 +8,22 @@ import { isRateLimitError } from "@/features/evals/errors"
 import { JUDGE_SYSTEM_PROMPT, judgeAnswer } from "@/features/evals/judge"
 import { summarize } from "@/features/evals/summarize"
 import {
+  type CaseContext,
   type CaseResult,
   type Dataset,
   type EvalCase,
+  type HistorySettings,
   type JudgeScores,
   type RunReport,
 } from "@/features/evals/types"
+import { DEFAULT_STRATEGY, HISTORY_BUDGET } from "@/features/history/config"
+import { prepareContext } from "@/features/history/prepare"
+import { summarizeConversation } from "@/features/history/summarize"
+import {
+  estimateModelMessageTokens,
+  messageText,
+} from "@/features/history/tokens"
+import { type HistoryMessage } from "@/features/history/types"
 import { buildPrompt } from "@/features/prompts"
 import { type PromptDefinition } from "@/features/prompts/types"
 
@@ -30,13 +40,30 @@ export interface GenerateInput {
   system: string
   examples: ModelMessage[]
   temperature?: number
+  // Earlier turns that survived the history handling. Empty for one-turn
+  // cases.
+  history: ModelMessage[]
   input: string
+}
+
+export interface SummarizeInput {
+  model: string
+  previous?: string
+  messages: HistoryMessage[]
+}
+
+export interface Summary {
+  text: string
+  inputTokens: number
+  outputTokens: number
+  costUsd: number
 }
 
 // The model calls the runner makes. Tests pass fakes instead.
 export interface EvalCalls {
   generate: (input: GenerateInput) => Promise<Answer>
   judge: typeof judgeAnswer
+  summarize: (input: SummarizeInput) => Promise<Summary>
 }
 
 async function generateAnswer({
@@ -44,13 +71,14 @@ async function generateAnswer({
   system,
   examples,
   temperature,
+  history,
   input,
 }: GenerateInput): Promise<Answer> {
   const started = Date.now()
   const result = await generateText({
     model: getModel(model),
     system,
-    messages: [...examples, { role: "user", content: input }],
+    messages: [...examples, ...history, { role: "user", content: input }],
     temperature,
     maxOutputTokens: MAX_OUTPUT_TOKENS,
     maxRetries: MAX_RETRIES,
@@ -64,10 +92,33 @@ async function generateAnswer({
   }
 }
 
-const defaultCalls: EvalCalls = { generate: generateAnswer, judge: judgeAnswer }
+async function summarizeHistory({
+  model,
+  previous,
+  messages,
+}: SummarizeInput): Promise<Summary> {
+  const result = await summarizeConversation({
+    modelId: model,
+    previous,
+    messages,
+  })
+  return {
+    text: result.text,
+    inputTokens: result.inputTokens,
+    outputTokens: result.outputTokens,
+    costUsd: costOf({ raw: result.raw }),
+  }
+}
+
+const defaultCalls: EvalCalls = {
+  generate: generateAnswer,
+  judge: judgeAnswer,
+  summarize: summarizeHistory,
+}
 
 interface RunContext {
   calls: EvalCalls
+  history: HistorySettings
   model: string
   judgeModel: string
   judge: boolean
@@ -147,10 +198,25 @@ async function runCase(
     promptId: prompt.id,
   }
 
-  const { system, examples, temperature } = buildPrompt(prompt)
+  const built = buildPrompt(prompt)
+  const { examples, temperature } = built
+
+  let system = built.system
+  let history: ModelMessage[] = []
+  let caseContext: CaseContext | undefined
+  let summaryCost = 0
 
   let answer: Answer
   try {
+    if (testCase.history?.length) {
+      ;({ system, history, caseContext, summaryCost } = await prepareHistory(
+        context,
+        testCase,
+        built.system,
+        examples
+      ))
+    }
+
     answer = await cached(
       context,
       cacheKey({
@@ -160,6 +226,8 @@ async function runCase(
         examples,
         temperature,
         maxOutputTokens: MAX_OUTPUT_TOKENS,
+        // Left out for one-turn cases, so their cache keys are unchanged.
+        ...(history.length > 0 && { history }),
         input: testCase.input,
       }),
       () =>
@@ -168,6 +236,7 @@ async function runCase(
           system,
           examples,
           temperature,
+          history,
           input: testCase.input,
         })
     )
@@ -194,7 +263,8 @@ async function runCase(
     latencyMs: answer.latencyMs,
     inputTokens: answer.inputTokens,
     outputTokens: answer.outputTokens,
-    costUsd: answer.costUsd,
+    costUsd: answer.costUsd + summaryCost,
+    ...(caseContext && { context: caseContext }),
   }
 
   if (!context.judge) {
@@ -230,12 +300,88 @@ async function runCase(
   return result
 }
 
+// Runs a multi-turn case's history through the same code as the chat, so the
+// eval measures what the chat does. Summaries are cached like answers.
+async function prepareHistory(
+  context: RunContext,
+  testCase: EvalCase,
+  system: string,
+  examples: ModelMessage[]
+) {
+  const messages: HistoryMessage[] = [
+    ...(testCase.history ?? []),
+    { role: "user" as const, content: testCase.input },
+  ].map((turn, index) => ({
+    id: `${testCase.id}-${index}`,
+    role: turn.role,
+    parts: [{ type: "text" as const, text: turn.content }],
+  }))
+
+  const usage = { input: 0, output: 0, cost: 0 }
+  const prepared = await prepareContext({
+    system,
+    messages,
+    strategy: context.history.strategy,
+    budget: context.history.budget,
+    fixedTokens: estimateModelMessageTokens(examples),
+    summarize: async ({ previous, messages: evicted }) => {
+      const summary = await cached(
+        context,
+        cacheKey({
+          kind: "summary",
+          model: context.model,
+          previous,
+          messages: evicted.map((m) => [m.role, messageText(m)]),
+        }),
+        () =>
+          context.calls.summarize({
+            model: context.model,
+            previous,
+            messages: evicted,
+          })
+      )
+      usage.input += summary.inputTokens
+      usage.output += summary.outputTokens
+      usage.cost += summary.costUsd
+      return summary.text
+    },
+  })
+
+  // A summary that failed because of the rate limit must not be scored as a
+  // window run. Stop the case, and the run, instead.
+  if (context.stopped.reason) {
+    throw new Error(`Skipped: ${context.stopped.reason}`)
+  }
+
+  return {
+    system: prepared.system,
+    // The last message is the input, which is sent separately.
+    history: prepared.messages
+      .slice(0, -1)
+      .map((message): ModelMessage =>
+        message.role === "user"
+          ? { role: "user", content: messageText(message) }
+          : { role: "assistant", content: messageText(message) }
+      ),
+    caseContext: {
+      totalMessages: prepared.info.totalMessages,
+      sentMessages: prepared.info.sentMessages,
+      summarized: Boolean(prepared.info.summarized),
+      summaryFailed: Boolean(prepared.info.summaryFailed),
+      summaryInputTokens: usage.input,
+      summaryOutputTokens: usage.output,
+    },
+    summaryCost: usage.cost,
+  }
+}
+
 export async function runEval({
   dataset,
   prompts,
   model,
   judgeModel,
   judge = true,
+  history,
   concurrency,
   cache,
   calls = defaultCalls,
@@ -246,6 +392,8 @@ export async function runEval({
   model: string
   judgeModel: string
   judge?: boolean
+  // How multi-turn cases handle their history. Defaults to the chat's.
+  history?: Partial<HistorySettings>
   concurrency: number
   cache?: EvalCache
   calls?: EvalCalls
@@ -254,7 +402,12 @@ export async function runEval({
   RunReport & { calls: RunContext["count"]; stoppedReason?: string }
 > {
   const createdAt = new Date()
+  const settings: HistorySettings = {
+    strategy: history?.strategy ?? DEFAULT_STRATEGY,
+    budget: history?.budget ?? dataset.historyBudget ?? HISTORY_BUDGET,
+  }
   const context: RunContext = {
+    history: settings,
     model,
     judgeModel,
     judge,
@@ -280,6 +433,7 @@ export async function runEval({
     dataset: dataset.id,
     model,
     judgeModel: judge ? judgeModel : "none",
+    history: settings,
     summaries: summarize(prompts, results),
     results,
     calls: context.count,

@@ -12,12 +12,15 @@ import {
 
 export function PromptForm({
   controls,
+  status,
   isBusy,
   onSubmit,
   onStop,
 }: {
   // Pickers shown next to the send button.
   controls?: React.ReactNode
+  // Shown next to the send button, such as the context usage.
+  status?: React.ReactNode
   isBusy: boolean
   onSubmit: (text: string) => void
   onStop: () => void
@@ -51,31 +54,32 @@ export function PromptForm({
             }
           }}
         />
-        <InputGroupAddon align="block-end">
+        <InputGroupAddon align="block-end" className="flex-wrap">
           {controls}
-          {isBusy ? (
-            <InputGroupButton
-              type="button"
-              size="icon-sm"
-              variant="outline"
-              aria-label="Stop generating"
-              className="ml-auto"
-              onClick={onStop}
-            >
-              <SquareIcon />
-            </InputGroupButton>
-          ) : (
-            <InputGroupButton
-              type="submit"
-              size="icon-sm"
-              variant="default"
-              aria-label="Send message"
-              className="ml-auto"
-              disabled={!input.trim()}
-            >
-              <ArrowUpIcon />
-            </InputGroupButton>
-          )}
+          <div className="ml-auto flex items-center gap-1">
+            {status}
+            {isBusy ? (
+              <InputGroupButton
+                type="button"
+                size="icon-sm"
+                variant="outline"
+                aria-label="Stop generating"
+                onClick={onStop}
+              >
+                <SquareIcon />
+              </InputGroupButton>
+            ) : (
+              <InputGroupButton
+                type="submit"
+                size="icon-sm"
+                variant="default"
+                aria-label="Send message"
+                disabled={!input.trim()}
+              >
+                <ArrowUpIcon />
+              </InputGroupButton>
+            )}
+          </div>
         </InputGroupAddon>
       </InputGroup>
     </form>

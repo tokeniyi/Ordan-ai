@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { CheckIcon, CopyIcon, RefreshCcwIcon } from "lucide-react"
+import { CheckIcon, CopyIcon, RefreshCcwIcon, Undo2Icon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { MessageFooter } from "@/components/ui/message"
@@ -14,9 +14,12 @@ import {
 export function MessageActions({
   text,
   onRetry,
+  onRestore,
 }: {
   text: string
   onRetry?: () => void
+  // The Checkpoint pattern: go back to this reply and drop what came after.
+  onRestore?: () => void
 }) {
   const [copied, setCopied] = React.useState(false)
 
@@ -45,6 +48,11 @@ export function MessageActions({
       {onRetry && (
         <MessageAction label="Retry" onClick={onRetry}>
           <RefreshCcwIcon />
+        </MessageAction>
+      )}
+      {onRestore && (
+        <MessageAction label="Restore to here" onClick={onRestore}>
+          <Undo2Icon />
         </MessageAction>
       )}
     </MessageFooter>

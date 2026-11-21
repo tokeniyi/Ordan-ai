@@ -5,6 +5,8 @@ import { type ChatStatus } from "ai"
 import { type ChatUIMessage } from "@/features/chat/types"
 import { ChatMessage } from "@/features/chat/components/chat-message"
 import { StatusIcon } from "@/features/chat/components/status-icon"
+import { type ContextInfo } from "@/features/history/types"
+import { ContextBoundary } from "@/features/history/components/context-boundary"
 import { Message, MessageContent } from "@/components/ui/message"
 import {
   MessageScroller,
@@ -22,11 +24,17 @@ export function ChatThread({
   messages,
   status,
   onRetry,
+  onRestore,
+  context,
   className,
 }: {
   messages: ChatUIMessage[]
   status: ChatStatus
   onRetry?: (messageId: string) => void
+  // Restores the chat to a checkpoint: removes every message after this one.
+  onRestore?: (messageId: string) => void
+  // The last request's context. Marks where the model's view begins.
+  context?: ContextInfo
   className?: string
 }) {
   const isBusy = status === "submitted" || status === "streaming"
@@ -48,12 +56,22 @@ export function ChatThread({
                 messageId={message.id}
                 scrollAnchor={message.role === "user"}
               >
+                {context?.firstSentMessageId === message.id && (
+                  <div className="pb-6">
+                    <ContextBoundary context={context} />
+                  </div>
+                )}
                 <ChatMessage
                   message={message}
                   isStreaming={isBusy && message.id === lastMessage?.id}
                   onRetry={
                     onRetry && !isBusy && message.id === lastMessage?.id
                       ? () => onRetry(message.id)
+                      : undefined
+                  }
+                  onRestore={
+                    onRestore && !isBusy && message.id !== lastMessage?.id
+                      ? () => onRestore(message.id)
                       : undefined
                   }
                 />

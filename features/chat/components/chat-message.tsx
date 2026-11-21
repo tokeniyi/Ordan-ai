@@ -22,10 +22,12 @@ export function ChatMessage({
   message,
   isStreaming = false,
   onRetry,
+  onRestore,
 }: {
   message: ChatUIMessage
   isStreaming?: boolean
   onRetry?: () => void
+  onRestore?: () => void
 }) {
   if (message.role === "user") {
     return (
@@ -81,7 +83,7 @@ export function ChatMessage({
           )
         )}
         {!isStreaming && text && (
-          <MessageActions text={text} onRetry={onRetry} />
+          <MessageActions text={text} onRetry={onRetry} onRestore={onRestore} />
         )}
       </MessageContent>
     </Message>

@@ -15,6 +15,7 @@ function seconds(ms: number) {
 
 export function SummaryTable({ summaries }: { summaries: PromptSummary[] }) {
   const best = Math.max(...summaries.map((s) => s.passed))
+  const hasSummary = summaries.some((s) => s.avgSummaryTokens !== undefined)
 
   return (
     <Table>
@@ -27,7 +28,11 @@ export function SummaryTable({ summaries }: { summaries: PromptSummary[] }) {
           <TableHead className="text-right">Correct</TableHead>
           <TableHead className="text-right">Relevant</TableHead>
           <TableHead className="text-right">Clear</TableHead>
-          <TableHead className="text-right">Avg tokens</TableHead>
+          <TableHead className="text-right">Avg input tokens</TableHead>
+          <TableHead className="text-right">Avg output tokens</TableHead>
+          {hasSummary && (
+            <TableHead className="text-right">Avg summary tokens</TableHead>
+          )}
           <TableHead className="text-right">Avg latency</TableHead>
           <TableHead className="text-right">Cost</TableHead>
         </TableRow>
@@ -66,8 +71,16 @@ export function SummaryTable({ summaries }: { summaries: PromptSummary[] }) {
               {s.clarity}
             </TableCell>
             <TableCell className="text-right tabular-nums">
+              {s.avgInputTokens ?? "–"}
+            </TableCell>
+            <TableCell className="text-right tabular-nums">
               {s.avgOutputTokens}
             </TableCell>
+            {hasSummary && (
+              <TableCell className="text-right tabular-nums">
+                {s.avgSummaryTokens ?? 0}
+              </TableCell>
+            )}
             <TableCell className="text-right tabular-nums">
               {seconds(s.avgLatencyMs)}
             </TableCell>

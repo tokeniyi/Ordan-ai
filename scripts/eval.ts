@@ -20,6 +20,8 @@ const { values } = parseArgs({
     cases: { type: "string" },
     model: { type: "string" },
     judge: { type: "string" },
+    history: { type: "string" },
+    budget: { type: "string" },
     "no-judge": { type: "boolean", default: false },
     "no-cache": { type: "boolean", default: false },
     concurrency: { type: "string" },
@@ -36,6 +38,10 @@ if (values.help) {
   --cases <ids>        Comma-separated case ids or categories (default: all)
   --model <id>         Model that answers (default: the eval model)
   --judge <id>         Model that scores (default: the judge model)
+  --history <strategy> How multi-turn cases send their history: summary,
+                       window or full (default: summary, as in the chat)
+  --budget <tokens>    History budget for multi-turn cases (default: the
+                       dataset's, or the chat's)
   --no-judge           Skip the judge and run only deterministic checks
   --no-cache           Call the models again instead of reusing cached results
   --concurrency <n>    Calls in flight at once
@@ -55,6 +61,7 @@ async function main() {
   const { caseStatus } = await import("@/features/evals/status")
   const { toMarkdown } = await import("@/features/evals/report")
   const { PROMPTS } = await import("@/features/prompts")
+  const { HISTORY_STRATEGIES } = await import("@/features/history/types")
 
   if (!hasApiKey()) {
     throw new Error("KILO_API_KEY is not set. Add it to .env.local.")
@@ -91,6 +98,17 @@ async function main() {
     throw new Error("No cases match --cases.")
   }
 
+  const strategy = HISTORY_STRATEGIES.find((s) => s === values.history)
+  if (values.history && !strategy) {
+    throw new Error(
+      `Unknown history strategy "${values.history}". Use ${HISTORY_STRATEGIES.join(", ")}.`
+    )
+  }
+  const budget = values.budget ? Number(values.budget) : undefined
+  if (budget !== undefined && !(budget > 0)) {
+    throw new Error("--budget must be a positive number of tokens.")
+  }
+
   const model = values.model ?? EVAL_MODEL
   const judgeModel = values.judge ?? JUDGE_MODEL
   const judge = !values["no-judge"]
@@ -100,6 +118,11 @@ async function main() {
     `Running ${cases.length} cases x ${prompts.length} prompts on ${model}` +
       (judge ? `, judged by ${judgeModel}` : ", without a judge")
   )
+  if (cases.some((c) => c.history?.length)) {
+    console.log(
+      `History: ${strategy ?? "summary"}, budget ${budget ?? dataset.historyBudget ?? "default"} tokens`
+    )
+  }
 
   let done = 0
   const report = await runEval({
@@ -108,6 +131,7 @@ async function main() {
     model,
     judgeModel,
     judge,
+    history: { strategy, budget },
     concurrency: Number(values.concurrency ?? CONCURRENCY),
     cache: values["no-cache"] ? undefined : fileCache(path.resolve(CACHE_DIR)),
     onResult: (result) => {
@@ -153,7 +177,11 @@ async function main() {
       correct: s.correctness,
       relevant: s.relevance,
       clear: s.clarity,
-      tokens: s.avgOutputTokens,
+      "in tokens": s.avgInputTokens,
+      "out tokens": s.avgOutputTokens,
+      ...(s.avgSummaryTokens !== undefined && {
+        "summary tokens": s.avgSummaryTokens,
+      }),
       latency: `${(s.avgLatencyMs / 1000).toFixed(1)}s`,
       errors: s.errors,
     }))

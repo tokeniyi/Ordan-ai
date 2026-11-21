@@ -1,7 +1,7 @@
 import { MODELS } from "@/lib/ai/models"
-import { Chat } from "@/features/chat/components/chat"
+import { NewChat } from "@/features/chat/components/new-chat"
 import { PROMPT_OPTIONS } from "@/features/prompts"
 
 export default function Page() {
-  return <Chat models={MODELS} prompts={PROMPT_OPTIONS} />
+  return <NewChat models={MODELS} prompts={PROMPT_OPTIONS} />
 }

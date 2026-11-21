@@ -39,7 +39,9 @@ The `structured` prompt includes today's date, so its cached answers are reused 
 | `--model` | `--model kilo-auto/balanced` | Answer with another model. |
 | `--judge` | `--judge <model id>` | Judge with another model. |
 | `--concurrency` | `--concurrency 1` | Calls in flight at once. Lower it if you hit rate limits. |
-| `--dataset` | `--dataset core` | Which test set to run. |
+| `--dataset` | `--dataset core` | Which test set to run: `core` or `history`. |
+| `--history` | `--history window` | How multi-turn cases send their history: `summary` (the default, as in the chat), `window` or `full`. |
+| `--budget` | `--budget 2000` | The history budget in tokens for multi-turn cases. Defaults to the dataset's. |
 
 Pass options after `--` when your package manager needs it, for example `pnpm eval -- --cases reasoning`.
 
@@ -81,6 +83,18 @@ Add an entry to the `cases` list in `features/evals/datasets/core.ts`:
 The available checks are `includesAll`, `includesAny`, `excludes`, `matches` (a regular expression), `maxWords`, `minWords` and `hasCodeBlock`. They are defined in `features/evals/types.ts`.
 
 If you add a `matches` check, add a unit test for its pattern in `features/evals/datasets/core.test.ts`. A wrong pattern fails every answer without anyone noticing.
+
+### Multi-turn cases
+
+A case can have a `history`: earlier turns of the conversation, oldest first. The runner passes them through the same history code as the chat (`features/history/prepare.ts`), so a run measures what the chat would do with that conversation. Summaries are cached like answers. The `history` test set has eight such cases. Compare strategies by running it once per strategy:
+
+```bash
+pnpm eval --dataset history --prompts structured --history full
+pnpm eval --dataset history --prompts structured --history window
+pnpm eval --dataset history --prompts structured --history summary
+```
+
+The report then shows average input tokens per answer and, for the summary strategy, the tokens spent on summarizing.
 
 To add a whole new test set, create a file next to `core.ts` and add it to `datasets/index.ts`.
 

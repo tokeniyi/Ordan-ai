@@ -9,6 +9,11 @@ import {
 import { DEFAULT_MODEL, isModelAllowed } from "@/lib/ai/models"
 import { getModel, hasApiKey } from "@/lib/ai/provider"
 import { type ChatUIMessage } from "@/features/chat/types"
+import { HISTORY_BUDGET } from "@/features/history/config"
+import { prepareContext } from "@/features/history/prepare"
+import { parseHistoryRequest } from "@/features/history/request"
+import { summarizeConversation } from "@/features/history/summarize"
+import { estimateModelMessageTokens } from "@/features/history/tokens"
 import { buildPrompt, DEFAULT_PROMPT_ID, getPrompt } from "@/features/prompts"
 
 export const maxDuration = 30
@@ -54,6 +59,14 @@ export async function POST(req: Request) {
     )
   }
 
+  const history = parseHistoryRequest((body as { history?: unknown })?.history)
+  if (!history) {
+    return Response.json(
+      { error: "Invalid history settings." },
+      { status: 400 }
+    )
+  }
+
   let messages: ChatUIMessage[]
   try {
     messages = await validateUIMessages<ChatUIMessage>({
@@ -65,10 +78,38 @@ export async function POST(req: Request) {
 
   const { system, examples, temperature } = buildPrompt(prompt)
 
+  // Trim or summarize the history to fit the budget. See features/history.
+  let context: Awaited<ReturnType<typeof prepareContext<ChatUIMessage>>>
+  try {
+    context = await prepareContext({
+      system,
+      messages,
+      strategy: history.strategy,
+      budget: HISTORY_BUDGET,
+      fixedTokens: estimateModelMessageTokens(examples),
+      summary: history.summary,
+      summarize: async ({ previous, messages }) =>
+        (
+          await summarizeConversation({
+            modelId,
+            previous,
+            messages,
+            abortSignal: req.signal,
+          })
+        ).text,
+    })
+  } catch (error) {
+    console.error(error)
+    return Response.json({ error: "Request was cancelled." }, { status: 499 })
+  }
+
   const result = streamText({
     model: getModel(modelId),
-    system,
-    messages: [...examples, ...(await convertToModelMessages(messages))],
+    system: context.system,
+    messages: [
+      ...examples,
+      ...(await convertToModelMessages(context.messages)),
+    ],
     temperature,
     maxOutputTokens: MAX_OUTPUT_TOKENS,
     abortSignal: req.signal,
@@ -82,6 +123,21 @@ export async function POST(req: Request) {
       stream: result.stream,
       // The AI SDK does not time reasoning, so time each block here.
       messageMetadata: ({ part }) => {
+        if (part.type === "start") {
+          return { context: context.info }
+        }
+
+        if (part.type === "finish") {
+          return {
+            usage: {
+              inputTokens: part.totalUsage.inputTokens ?? 0,
+              outputTokens: part.totalUsage.outputTokens ?? 0,
+              reasoningTokens:
+                part.totalUsage.outputTokenDetails.reasoningTokens ?? 0,
+            },
+          }
+        }
+
         if (part.type === "reasoning-start") {
           reasoningStarts.set(part.id, {
             index: reasoningCount++,

@@ -1,0 +1,671 @@
+{
+  "id": "2026-11-19T19-59-21-707Z",
+  "createdAt": "2026-11-19T19:59:21.707Z",
+  "dataset": "core",
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "judgeModel": "nvidia/nemotron-3.5-super-vl:free",
+  "history": {
+    "strategy": "summary",
+    "budget": 4000
+  },
+  "summaries": [
+    {
+      "promptId": "structured",
+      "promptVersion": 1,
+      "cases": 20,
+      "passed": 20,
+      "errors": 0,
+      "checksPassed": 23,
+      "checksTotal": 23,
+      "correctness": 5,
+      "relevance": 5,
+      "clarity": 5,
+      "quality": 100,
+      "avgInputTokens": 239,
+      "avgOutputTokens": 117,
+      "avgLatencyMs": 2491,
+      "totalCostUsd": 0
+    }
+  ],
+  "results": [
+    {
+      "caseId": "fact-capital",
+      "category": "facts",
+      "input": "What is the capital of Australia?",
+      "promptId": "structured",
+      "answer": "Canberra is the capital of Australia.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "Canberra"
+            ]
+          },
+          "label": "Mentions all of: Canberra",
+          "passed": true
+        },
+        {
+          "check": {
+            "type": "maxWords",
+            "value": 60
+          },
+          "label": "At most 60 words",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 1762,
+      "inputTokens": 229,
+      "outputTokens": 37,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer correctly identifies Canberra as the capital of Australia, matching the reference exactly. It directly answers the question without adding unnecessary information or omitting anything relevant. It is concise, clear, and well organized.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "fact-apollo",
+      "category": "facts",
+      "input": "In what year did Apollo 11 land on the Moon?",
+      "promptId": "structured",
+      "answer": "Apollo 11 landed on the Moon on July 20, 1969.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "1969"
+            ]
+          },
+          "label": "Mentions all of: 1969",
+          "passed": true
+        },
+        {
+          "check": {
+            "type": "maxWords",
+            "value": 60
+          },
+          "label": "At most 60 words",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 1348,
+      "inputTokens": 235,
+      "outputTokens": 49,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer states July 20, 1969, which exactly matches the reference. It directly answers the question about the year (including the specific date from the reference) and is concise and easy to follow.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "reason-bat-ball",
+      "category": "reasoning",
+      "input": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost?",
+      "promptId": "structured",
+      "answer": "The ball costs $0.05 (5 cents).\n\nIf the ball costs $0.05, the bat costs $1.05 ($1.00 more), and together they total $1.10.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "0.05",
+              "5 cents",
+              "five cents",
+              "5¢"
+            ]
+          },
+          "label": "Mentions one of: 0.05, 5 cents, five cents, 5¢",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 3032,
+      "inputTokens": 256,
+      "outputTokens": 188,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer correctly states the ball costs $0.05 and verifies the math against the problem conditions, fully agreeing with the reference. It answers exactly what was asked without extra or missing content, and it is concise and easy to follow.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "reason-widgets",
+      "category": "reasoning",
+      "input": "If it takes 5 machines 5 minutes to make 5 widgets, how long would it take 100 machines to make 100 widgets?",
+      "promptId": "structured",
+      "answer": "5 minutes.\n\nEach machine produces 1 widget every 5 minutes. With 100 machines running in parallel, they produce 100 widgets in the same 5 minutes.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "5 minutes",
+              "five minutes"
+            ]
+          },
+          "label": "Mentions one of: 5 minutes, five minutes",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2823,
+      "inputTokens": 255,
+      "outputTokens": 143,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer correctly states 5 minutes and explains that each machine makes one widget in 5 minutes, so 100 machines working in parallel produce 100 widgets in 5 minutes. This fully agrees with the reference, answers exactly what was asked without extra content, and is clear and concise.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "reason-sheep",
+      "category": "reasoning",
+      "input": "A farmer has 17 sheep. All but 9 run away. How many are left?",
+      "promptId": "structured",
+      "answer": "9",
+      "checks": [
+        {
+          "check": {
+            "type": "matches",
+            "pattern": "\\b(9|nine)\\b",
+            "flags": "i"
+          },
+          "label": "Matches /\\b(9|nine)\\b/i",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 1034,
+      "inputTokens": 242,
+      "outputTokens": 58,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer \"9\" is correct and matches the reference exactly. It directly answers the question with no extra content, making it highly relevant and clear.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "math-percent",
+      "category": "reasoning",
+      "input": "What is 23% of 480?",
+      "promptId": "structured",
+      "answer": "23% of 480 is **110.4**.\n\nCalculation: 0.23 × 480 = 110.4",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "110.4"
+            ]
+          },
+          "label": "Mentions all of: 110.4",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 1373,
+      "inputTokens": 234,
+      "outputTokens": 58,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer states 110.4, which exactly matches the reference, and the calculation 0.23 × 480 = 110.4 is correct. It directly answers the question with no extra or missing content, and it is concise and easy to follow.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "explain-rag",
+      "category": "explaining",
+      "input": "What is retrieval augmented generation?",
+      "promptId": "structured",
+      "answer": "Retrieval Augmented Generation (RAG) is an AI technique that combines a retrieval system with a generative model. Instead of relying solely on the model's training data, RAG first searches a knowledge base (documents, databases, APIs) for relevant information, then feeds that context to the generator to produce a more accurate, grounded response.\n\n**Typical flow:**\n1. **Query** → embedding model → vector search\n2. **Retrieve** top-k relevant chunks from a vector store or search index\n3. **Augment** the prompt with retrieved context\n4. **Generate** answer using an LLM\n\n**Why it matters:** Reduces hallucinations, enables up-to-date answers without retraining, and lets you cite sources.",
+      "checks": [
+        {
+          "check": {
+            "type": "minWords",
+            "value": 25
+          },
+          "label": "At least 25 words",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 3409,
+      "inputTokens": 228,
+      "outputTokens": 185,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer correctly defines RAG and matches all key points in the reference: retrieving relevant documents from an external source, adding them to the prompt, using up-to-date or private data without retraining, and reducing hallucinations. It answers exactly what was asked with a clear, well-organized structure (definition, typical flow, benefits) and no padding or errors.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "explain-precision-recall",
+      "category": "explaining",
+      "input": "What is the difference between precision and recall?",
+      "promptId": "structured",
+      "answer": "**Precision** measures how many of the positive predictions were actually correct.  \n**Recall** measures how many of the actual positives were correctly predicted.\n\n| Metric | Formula | Question it answers |\n|--------|---------|---------------------|\n| Precision | TP / (TP + FP) | Of the items I labeled positive, how many are truly positive? |\n| Recall | TP / (TP + FN) | Of all the truly positive items, how many did I find? |\n\n- **High precision, low recall**: Conservative model — few false alarms, but misses many real positives.\n- **High recall, low precision**: Aggressive model — catches most real positives, but includes many false alarms.\n\nTP = true positives, FP = false positives, FN = false negatives.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "precision",
+              "recall"
+            ]
+          },
+          "label": "Mentions all of: precision, recall",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2699,
+      "inputTokens": 231,
+      "outputTokens": 191,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer correctly defines precision and recall, gives the exact formulas from the reference (TP/(TP+FP) and TP/(TP+FN)), explains what each metric measures, and captures the trade-off through the conservative vs. aggressive model examples. It answers the question directly with no incorrect claims, no irrelevant additions, and is well organized with a table and clear definitions.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "code-palindrome",
+      "category": "code",
+      "input": "Write a TypeScript function that returns true if a string is a palindrome, ignoring case and non-alphanumeric characters.",
+      "promptId": "structured",
+      "answer": "```typescript\nfunction isPalindrome(str: string): boolean {\n  const cleaned = str.toLowerCase().replace(/[^a-z0-9]/g, '');\n  return cleaned === cleaned.split('').reverse().join('');\n}\n```\n\n**Example usage:**\n```typescript\nisPalindrome(\"A man, a plan, a canal: Panama\"); // true\nisPalindrome(\"race a car\"); // false\nisPalindrome(\"No lemon, no melon\"); // true\n```\n\nThe function normalizes the string by lowercasing and stripping non-alphanumeric characters, then compares it to its reverse.",
+      "checks": [
+        {
+          "check": {
+            "type": "hasCodeBlock"
+          },
+          "label": "Has a code block",
+          "passed": true
+        },
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "tolowercase",
+              "tolocalelowercase"
+            ]
+          },
+          "label": "Mentions one of: tolowercase, tolocalelowercase",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2488,
+      "inputTokens": 247,
+      "outputTokens": 169,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer implements exactly what the reference requires: it lowercases the input, removes non-alphanumeric characters with /[^a-z0-9]/g, and compares the cleaned string to its reverse. The example 'A man, a plan, a canal: Panama' returns true as expected. It answers the question directly with concise, well-organized TypeScript code and no padding.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "code-float",
+      "category": "code",
+      "input": "Why does 0.1 + 0.2 === 0.3 return false in JavaScript?",
+      "promptId": "structured",
+      "answer": "JavaScript uses IEEE 754 double-precision floating-point numbers. Neither `0.1` nor `0.2` can be represented exactly in binary, so the calculation produces `0.30000000000000004` instead of `0.3`.\n\n```js\n0.1 + 0.2 === 0.3        // false\n0.1 + 0.2                // 0.30000000000000004\n```\n\n**Workarounds:**\n- Multiply to integers, compute, then divide: `(0.1 * 10 + 0.2 * 10) / 10 === 0.3`\n- Use a tolerance: `Math.abs(0.1 + 0.2 - 0.3) < Number.EPSILON`\n- Use a library like `decimal.js` for exact decimal arithmetic",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "floating",
+              "ieee",
+              "binary"
+            ]
+          },
+          "label": "Mentions one of: floating, ieee, binary",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 3461,
+      "inputTokens": 244,
+      "outputTokens": 235,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer correctly identifies IEEE 754 double-precision binary floating point as the cause, explains that 0.1 and 0.2 are not exactly representable, states the resulting sum is 0.30000000000000004, and suggests valid workarounds (tolerance/Number.EPSILON, integers, decimal library) that match the reference. It is concise, well organized, and directly answers the question without padding.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "honest-unknowable",
+      "category": "honesty",
+      "input": "What did I eat for breakfast this morning?",
+      "promptId": "structured",
+      "answer": "I don't know. I have no information about your personal activities or meals.",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 2429,
+      "inputTokens": 231,
+      "outputTokens": 50,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer correctly states that the assistant does not know and has no information about the user's meals, which fully agrees with the reference. It is brief, does not guess, and answers exactly what was asked with no extra padding. It is clear and easy to follow.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "honest-false-premise",
+      "category": "honesty",
+      "input": "Why did Albert Einstein win the Nobel Prize for relativity?",
+      "promptId": "structured",
+      "answer": "He didn't. Einstein won the 1921 Nobel Prize in Physics for his explanation of the photoelectric effect, not for relativity. The official citation reads: \"for his services to Theoretical Physics, and especially for his discovery of the law of the photoelectric effect.\" Relativity was considered too speculative at the time for a Nobel award.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "photoelectric"
+            ]
+          },
+          "label": "Mentions one of: photoelectric",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 3574,
+      "inputTokens": 233,
+      "outputTokens": 158,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer directly corrects the false premise in the question, accurately states that Einstein won the 1921 Nobel Prize in Physics for the photoelectric effect rather than relativity, and includes the official citation. All claims agree with the reference. It answers exactly what was asked without unnecessary padding, and it is clearly organized and easy to follow.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "follow-only-words",
+      "category": "instructions",
+      "input": "Name the three primary colors of light. Reply with only the three words, separated by commas.",
+      "promptId": "structured",
+      "answer": "red, green, blue",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "red",
+              "green",
+              "blue"
+            ]
+          },
+          "label": "Mentions all of: red, green, blue",
+          "passed": true
+        },
+        {
+          "check": {
+            "type": "maxWords",
+            "value": 6
+          },
+          "label": "At most 6 words",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 1895,
+      "inputTokens": 242,
+      "outputTokens": 46,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer lists exactly the three correct primary colors of light (red, green, blue) and nothing else, matching both the content and the strict format instruction in the reference. It is concise and unambiguous.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "follow-one-sentence",
+      "category": "instructions",
+      "input": "In one sentence, what is an API?",
+      "promptId": "structured",
+      "answer": "An API (Application Programming Interface) is a defined set of rules and protocols that allows one software application to communicate with another.",
+      "checks": [
+        {
+          "check": {
+            "type": "maxWords",
+            "value": 40
+          },
+          "label": "At most 40 words",
+          "passed": true
+        },
+        {
+          "check": {
+            "type": "matches",
+            "pattern": "^[^.!?]*[.!?]?\\s*$"
+          },
+          "label": "Matches /^[^.!?]*[.!?]?\\s*$/",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2401,
+      "inputTokens": 231,
+      "outputTokens": 40,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer is a single sentence that correctly defines an API as a defined set of rules/protocols enabling one software application to communicate with another, which aligns with the reference. It directly answers the question without extra content and is clearly written.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "follow-three-bullets",
+      "category": "instructions",
+      "input": "Explain what a vector database is in exactly 3 bullet points, each under 15 words. No introduction or conclusion.",
+      "promptId": "structured",
+      "answer": "- Stores high-dimensional vectors for similarity search and retrieval  \n- Optimizes nearest-neighbor queries using specialized indexing structures  \n- Enables semantic search, recommendations, and RAG applications",
+      "checks": [
+        {
+          "check": {
+            "type": "matches",
+            "pattern": "^(\\s*[-*•][^\\n]*\\n?){3}\\s*$"
+          },
+          "label": "Matches /^(\\s*[-*•][^\\n]*\\n?){3}\\s*$/",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2960,
+      "inputTokens": 248,
+      "outputTokens": 197,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer has exactly three bullet points, no introduction or conclusion, and each bullet is under 15 words. All claims are correct: it stores vectors, handles similarity/nearest-neighbor queries, and supports semantic search and RAG. It is concise and well organized.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "follow-json",
+      "category": "instructions",
+      "input": "Reply with a JSON object with the keys name and year for the first person to walk on the Moon. No other text.",
+      "promptId": "structured",
+      "answer": "{\n  \"name\": \"Neil Armstrong\",\n  \"year\": 1969\n}",
+      "checks": [
+        {
+          "check": {
+            "type": "matches",
+            "pattern": "^\\s*\\{[\\s\\S]*\\}\\s*$"
+          },
+          "label": "Matches /^\\s*\\{[\\s\\S]*\\}\\s*$/",
+          "passed": true
+        },
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "armstrong",
+              "1969"
+            ]
+          },
+          "label": "Mentions all of: armstrong, 1969",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2512,
+      "inputTokens": 247,
+      "outputTokens": 63,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer is a valid JSON object with exactly the required keys (name and year), correct values (Neil Armstrong, 1969), and no extra text or code fences. It fully matches the reference requirements.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "reason-strawberry",
+      "category": "reasoning",
+      "input": "How many times does the letter \"r\" appear in \"strawberry\"?",
+      "promptId": "structured",
+      "answer": "3",
+      "checks": [
+        {
+          "check": {
+            "type": "matches",
+            "pattern": "\\b(3|three)\\b",
+            "flags": "i"
+          },
+          "label": "Matches /\\b(3|three)\\b/i",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 1244,
+      "inputTokens": 238,
+      "outputTokens": 66,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer '3' is correct and matches the reference exactly. It directly answers the question with no extra content, making it fully relevant and perfectly clear.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "reason-prime",
+      "category": "reasoning",
+      "input": "Is 1001 a prime number?",
+      "promptId": "structured",
+      "answer": "No, 1001 is not prime. It factors as 7 × 11 × 13.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "7",
+              "11",
+              "13"
+            ]
+          },
+          "label": "Mentions all of: 7, 11, 13",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 1761,
+      "inputTokens": 232,
+      "outputTokens": 123,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer correctly states that 1001 is not prime and gives the exact factorization 7 × 11 × 13, matching the reference. It directly answers the question with no extra or missing content, and it is concise and easy to follow.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "explain-ambiguous",
+      "category": "explaining",
+      "input": "How long does it take to boil an egg?",
+      "promptId": "structured",
+      "answer": "It depends on the size of the egg and how you like the yolk:\n\n- **Soft-boiled** (runny yolk): 4–6 minutes\n- **Medium-boiled** (jammy yolk): 7–9 minutes  \n- **Hard-boiled** (fully set yolk): 10–12 minutes\n\nStart timing once the water reaches a rolling boil. For easier peeling, use eggs that are a few days old and shock them in ice water immediately after cooking.",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 3747,
+      "inputTokens": 232,
+      "outputTokens": 146,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer directly addresses the question with boiling times for different doneness levels. It provides both soft/jammy and hard-boiled times, which the reference says makes a good answer. The hard-boiled time (10–12 minutes) matches the reference exactly, and the softer times are reasonable variations that do not contradict the reference’s approximate ranges. The extra tips about peeling are brief and relevant, not excessive. The answer is well organized with clear bullet points and no padding.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "honest-myth",
+      "category": "honesty",
+      "input": "Why is the Great Wall of China visible from space with the naked eye?",
+      "promptId": "structured",
+      "answer": "It isn't. The Great Wall of China is **not visible from space with the naked eye**.\n\nThis is a persistent myth. The wall is only about 6–9 meters (20–30 feet) wide and follows terrain that blends with the natural landscape. From low Earth orbit (~400 km up), astronauts cannot distinguish it without magnification. What *is* visible are large cities, highways, airports, and agricultural patterns.",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 3875,
+      "inputTokens": 237,
+      "outputTokens": 133,
+      "costUsd": 0,
+      "judge": {
+        "reason": "The answer directly corrects the false premise, matching the reference exactly. It accurately states the wall is not visible to the naked eye from orbit, cites its narrow width and blending with terrain, and mentions low Earth orbit. It stays on target without adding irrelevant material, and it is concise and easy to follow.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5
+      },
+      "quality": 100
+    }
+  ]
+}

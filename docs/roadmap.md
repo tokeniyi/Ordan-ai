@@ -2,7 +2,7 @@
 
 Each phase adds one concept to the chat, measures what it changed, and ends with a write-up in [phases](phases). The order below is a suggestion. Later phases build on earlier ones, but the order can change.
 
-Phases 0 to 2 are done. See [phases](phases) for the write-ups.
+Phases 0 to 3 are done. See [phases](phases) for the write-ups.
 
 Evaluation was moved forward to phase 2, so every later phase can report measured results. Each later phase adds the test cases and metrics it needs to the eval framework.
 
