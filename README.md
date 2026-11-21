@@ -30,11 +30,13 @@ The goal is not to build another chatbot. The chat is the test bench: each phase
 - Side-by-side prompt comparison
 - Follow-up suggestions, generated as structured output
 - Evaluation framework: a test set, deterministic checks and an LLM judge, run with `pnpm eval` and shown on an `/evals` page
+- Saved chats in a sidebar, kept in the browser
+- History budgeting: a sliding window or a rolling summary keeps long chats inside a token budget, with a context indicator and checkpoints
 - Light and dark themes
 
 ### Upcoming features
 
-- Saved conversation history
+- NLP pipeline: tokenization, chunking, embeddings and semantic search
 - Basic RAG
 - Hybrid search
 - Semantic caching
@@ -42,7 +44,7 @@ The goal is not to build another chatbot. The chat is the test bench: each phase
 - Agent workflows
 - Long-term memory
 
-The full plan, phase by phase, is in [docs/roadmap.md](docs/roadmap.md).
+The full plan, what each finished phase measured, and the backlog are in [docs/roadmap.md](docs/roadmap.md).
 
 ## Stack
 
@@ -93,6 +95,7 @@ components/ui/    shadcn/ui components, added with the shadcn CLI.
 components/       App shell: header, theme.
 features/         One folder per feature. Each can be built and tested alone.
   chat/           The chat UI and its message parts.
+  history/        Saved chats and fitting the history into a token budget.
   prompts/        The versioned prompt library.
   suggestions/    Follow-up questions after each reply.
   compare/        Side-by-side prompt comparison.
@@ -108,7 +111,8 @@ See [docs/architecture.md](docs/architecture.md) for how the pieces fit and how 
 ## Documentation
 
 - [Architecture](docs/architecture.md)
-- [Roadmap](docs/roadmap.md)
+- [Roadmap and progress](docs/roadmap.md)
+- [Guide for AI agents](AGENTS.md)
 - [Running evals](docs/evals.md)
 - [Phases](docs/phases)
 
