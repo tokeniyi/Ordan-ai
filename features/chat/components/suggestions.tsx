@@ -2,7 +2,12 @@
 
 import { Button } from "@/components/ui/button"
 
-const suggestions = [
+export interface Suggestion {
+  label: string
+  prompt: string
+}
+
+const defaultSuggestions: Suggestion[] = [
   {
     label: "Explain RAG",
     prompt:
@@ -21,13 +26,15 @@ const suggestions = [
 ]
 
 export function Suggestions({
+  items = defaultSuggestions,
   onSelect,
 }: {
+  items?: Suggestion[]
   onSelect: (prompt: string) => void
 }) {
   return (
     <div className="flex flex-wrap justify-center gap-2">
-      {suggestions.map((suggestion) => (
+      {items.map((suggestion) => (
         <Button
           key={suggestion.label}
           variant="outline"

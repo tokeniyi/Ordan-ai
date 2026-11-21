@@ -1,5 +1,9 @@
 import { caseStatus } from "@/features/evals/status"
-import { type CaseResult, type PromptSummary } from "@/features/evals/types"
+import {
+  type CaseResult,
+  type PromptSummary,
+  type RagSummary,
+} from "@/features/evals/types"
 import { type PromptDefinition } from "@/features/prompts/types"
 
 function mean(values: number[]) {
@@ -58,6 +62,32 @@ export function summarize(
         own.reduce((sum, result) => sum + result.costUsd, 0),
         6
       ),
+      ...(answered.some((result) => result.rag) && {
+        rag: summarizeRag(answered),
+      }),
     }
   })
+}
+
+function summarizeRag(results: CaseResult[]): RagSummary {
+  const withRag = results.flatMap((result) =>
+    result.rag ? [{ ...result, rag: result.rag }] : []
+  )
+  const withEvidence = withRag.filter((result) => result.rag.hasEvidence)
+  return {
+    evidenceCases: withEvidence.length,
+    evidenceFound: withEvidence.filter(
+      (result) => result.rag.evidenceRank !== undefined
+    ).length,
+    faithfulness: round(
+      mean(withRag.flatMap((result) => result.judge?.faithfulness ?? []))
+    ),
+    citedAnswers: withRag.filter((result) => result.rag.cited.length > 0)
+      .length,
+    answers: withRag.length,
+    invalidCitations: withRag.reduce(
+      (sum, result) => sum + result.rag.invalidCitations.length,
+      0
+    ),
+  }
 }

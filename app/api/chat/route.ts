@@ -15,6 +15,12 @@ import { parseHistoryRequest } from "@/features/history/request"
 import { summarizeConversation } from "@/features/history/summarize"
 import { estimateModelMessageTokens } from "@/features/history/tokens"
 import { buildPrompt, DEFAULT_PROMPT_ID, getPrompt } from "@/features/prompts"
+import { withoutOldCitations } from "@/features/rag/history"
+import { retrieveKestrel } from "@/features/rag/kestrel"
+import { withSources } from "@/features/rag/prompt"
+import { parseKnowledge } from "@/features/rag/request"
+import { retrievalQuery } from "@/features/rag/retrieve"
+import { type RagInfo } from "@/features/rag/types"
 
 export const maxDuration = 30
 
@@ -67,6 +73,11 @@ export async function POST(req: Request) {
     )
   }
 
+  const knowledge = parseKnowledge((body as { knowledge?: unknown })?.knowledge)
+  if (!knowledge) {
+    return Response.json({ error: "Invalid knowledge base." }, { status: 400 })
+  }
+
   let messages: ChatUIMessage[]
   try {
     messages = await validateUIMessages<ChatUIMessage>({
@@ -76,7 +87,24 @@ export async function POST(req: Request) {
     return Response.json({ error: "Invalid messages." }, { status: 400 })
   }
 
-  const { system, examples, temperature } = buildPrompt(prompt)
+  const built = buildPrompt(prompt)
+  const { examples, temperature } = built
+  let system = built.system
+
+  // Retrieve passages for the newest question and put them in the system
+  // prompt. See features/rag.
+  let rag: RagInfo | undefined
+  if (knowledge === "kestrel") {
+    const query = retrievalQuery(messages)
+    try {
+      rag = { knowledge, query, ...(await retrieveKestrel(query)) }
+    } catch (error) {
+      console.error(error)
+      return Response.json({ error: "Search failed." }, { status: 500 })
+    }
+    system = withSources(system, rag.sources)
+    messages = withoutOldCitations(messages)
+  }
 
   // Trim or summarize the history to fit the budget. See features/history.
   let context: Awaited<ReturnType<typeof prepareContext<ChatUIMessage>>>
@@ -124,7 +152,7 @@ export async function POST(req: Request) {
       // The AI SDK does not time reasoning, so time each block here.
       messageMetadata: ({ part }) => {
         if (part.type === "start") {
-          return { context: context.info }
+          return { context: context.info, ...(rag && { rag }) }
         }
 
         if (part.type === "finish") {

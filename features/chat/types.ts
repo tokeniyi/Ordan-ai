@@ -1,6 +1,7 @@
 import { type UIMessage } from "ai"
 
 import { type ContextInfo, type ReplyUsage } from "@/features/history/types"
+import { type RagInfo } from "@/features/rag/types"
 
 export interface ChatMetadata {
   // Milliseconds per reasoning part, keyed by its index in the message.
@@ -9,6 +10,8 @@ export interface ChatMetadata {
   context?: ContextInfo
   // Token usage the provider reported for this reply.
   usage?: ReplyUsage
+  // The sources retrieved for this reply, when it used documents.
+  rag?: RagInfo
 }
 
 export type ChatUIMessage = UIMessage<ChatMetadata>

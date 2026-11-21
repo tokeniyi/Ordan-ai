@@ -16,6 +16,8 @@ import { titleFrom, type SavedChat } from "@/features/history/store"
 import { type HistoryStrategy } from "@/features/history/types"
 import { chatStore } from "@/features/history/use-saved-chats"
 import { type PromptOption } from "@/features/prompts/types"
+import { KESTREL_SUGGESTIONS, KNOWLEDGE_OPTIONS } from "@/features/rag/options"
+import { type KnowledgeBase } from "@/features/rag/types"
 import { FollowUps } from "@/features/suggestions/follow-ups"
 import { useFollowUps } from "@/features/suggestions/use-follow-ups"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -50,6 +52,9 @@ export function Chat({
   )
   const [strategy, setStrategy] = React.useState(
     () => pick(STRATEGY_OPTIONS, initialChat?.strategy) as HistoryStrategy
+  )
+  const [knowledge, setKnowledge] = React.useState(
+    () => pick(KNOWLEDGE_OPTIONS, initialChat?.knowledge) as KnowledgeBase
   )
   const [saveFailed, setSaveFailed] = React.useState(false)
   const createdAt = React.useRef(
@@ -86,16 +91,18 @@ export function Chat({
       model,
       promptId,
       strategy,
+      knowledge,
       messages,
     })
     // The flag mirrors whether the last write reached storage.
     setSaveFailed(!saved)
-  }, [id, messages, status, model, promptId, strategy])
+  }, [id, messages, status, model, promptId, strategy, knowledge])
 
   function body(current: ChatUIMessage[] = messages) {
     return {
       model,
       promptId,
+      knowledge,
       history: { strategy, summary: summaryToSend(current, strategy) },
     }
   }
@@ -123,12 +130,18 @@ export function Chat({
             <EmptyHeader>
               <EmptyTitle>What can I help with?</EmptyTitle>
               <EmptyDescription>
-                Pick a model and a prompt, then start chatting. Responses stream
-                through the Kilo AI Gateway.
+                {knowledge === "kestrel"
+                  ? "Ask about Kestrel Cycle Club, a made-up e-bike rental company. Answers come from its help centre, with sources."
+                  : "Pick a model and a prompt, then start chatting. Responses stream through the Kilo AI Gateway."}
               </EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
-              <Suggestions onSelect={send} />
+              <Suggestions
+                items={
+                  knowledge === "kestrel" ? KESTREL_SUGGESTIONS : undefined
+                }
+                onSelect={send}
+              />
             </EmptyContent>
           </Empty>
         </div>
@@ -179,6 +192,12 @@ export function Chat({
                 options={STRATEGY_OPTIONS}
                 value={strategy}
                 onValueChange={(value) => setStrategy(value as HistoryStrategy)}
+              />
+              <OptionSelect
+                label="Knowledge"
+                options={KNOWLEDGE_OPTIONS}
+                value={knowledge}
+                onValueChange={(value) => setKnowledge(value as KnowledgeBase)}
               />
             </>
           }

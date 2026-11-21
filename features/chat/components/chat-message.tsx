@@ -9,6 +9,7 @@ import {
 import { MessageActions } from "@/features/chat/components/message-actions"
 import { ReasoningPart } from "@/features/chat/components/parts/reasoning-part"
 import { TextPart } from "@/features/chat/components/parts/text-part"
+import { Sources } from "@/features/rag/components/sources"
 import { Bubble, BubbleContent } from "@/components/ui/bubble"
 import { Message, MessageContent } from "@/components/ui/message"
 import { Trace } from "@/components/ui/trace"
@@ -79,9 +80,14 @@ export function ChatMessage({
               })}
             </Trace>
           ) : (
-            <TextPart key={index} part={block} />
+            <TextPart
+              key={index}
+              part={block}
+              sources={message.metadata?.rag?.sources}
+            />
           )
         )}
+        {message.metadata?.rag && <Sources rag={message.metadata.rag} />}
         {!isStreaming && text && (
           <MessageActions text={text} onRetry={onRetry} onRestore={onRestore} />
         )}

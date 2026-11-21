@@ -52,6 +52,28 @@ export function toMarkdown(report: RunReport) {
     ]),
   ])
 
+  const ragRows = report.summaries.flatMap((s) =>
+    s.rag
+      ? [
+          [
+            `${s.promptId} v${s.promptVersion}`,
+            `${s.rag.evidenceFound}/${s.rag.evidenceCases}`,
+            s.rag.faithfulness,
+            `${s.rag.citedAnswers}/${s.rag.answers}`,
+            s.rag.invalidCitations,
+          ],
+        ]
+      : []
+  )
+  const ragTable = ragRows.length
+    ? `\n## Retrieval and grounding\n\nFound counts the answerable cases where a source held the passage that answers them. Faithful is the judge's mean score, 1 to 5, for claims being supported by the sources. Cited counts answers with at least one citation.\n\n${table(
+        [
+          ["Prompt", "Found", "Faithful", "Cited", "Invalid citations"],
+          ...ragRows,
+        ]
+      )}\n`
+    : ""
+
   const failures = report.results.filter(
     (result) => caseStatus(result) !== "passed"
   )
@@ -70,12 +92,12 @@ export function toMarkdown(report: RunReport) {
 - **Dataset:** ${report.dataset}
 - **Model:** ${report.model}
 - **Judge:** ${report.judgeModel}
-${report.history ? `- **History:** ${report.history.strategy}, budget ${report.history.budget} tokens\n` : ""}- **Date:** ${report.createdAt}
+${report.history ? `- **History:** ${report.history.strategy}, budget ${report.history.budget} tokens\n` : ""}${report.knowledge ? `- **Knowledge:** ${report.knowledge}\n` : ""}- **Date:** ${report.createdAt}
 
 A case passes when all its checks pass and the judge scores it at least ${QUALITY_THRESHOLD}. Quality is the judge's mean score for correctness, relevance and clarity, scaled to 0 to 100. Checks counts the deterministic checks that passed.
 
 ${summary}
-
+${ragTable}
 ## Failed cases
 
 ${failureList}

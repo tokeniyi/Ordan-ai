@@ -1,6 +1,7 @@
 import { type ChatUIMessage } from "@/features/chat/types"
 import { messageText } from "@/features/history/tokens"
 import { type HistoryStrategy } from "@/features/history/types"
+import { type KnowledgeBase } from "@/features/rag/types"
 
 // Saved chats live in the browser's localStorage: an index of every chat,
 // and one entry per chat with its messages. Nothing is sent to a server, so
@@ -15,6 +16,8 @@ export interface SavedChat {
   model: string
   promptId: string
   strategy: HistoryStrategy
+  // Missing in chats saved before phase 5, which had no documents.
+  knowledge?: KnowledgeBase
   messages: ChatUIMessage[]
 }
 

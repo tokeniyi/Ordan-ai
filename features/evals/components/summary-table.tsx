@@ -16,6 +16,7 @@ function seconds(ms: number) {
 export function SummaryTable({ summaries }: { summaries: PromptSummary[] }) {
   const best = Math.max(...summaries.map((s) => s.passed))
   const hasSummary = summaries.some((s) => s.avgSummaryTokens !== undefined)
+  const hasRag = summaries.some((s) => s.rag)
 
   return (
     <Table>
@@ -28,6 +29,13 @@ export function SummaryTable({ summaries }: { summaries: PromptSummary[] }) {
           <TableHead className="text-right">Correct</TableHead>
           <TableHead className="text-right">Relevant</TableHead>
           <TableHead className="text-right">Clear</TableHead>
+          {hasRag && (
+            <>
+              <TableHead className="text-right">Found</TableHead>
+              <TableHead className="text-right">Faithful</TableHead>
+              <TableHead className="text-right">Cited</TableHead>
+            </>
+          )}
           <TableHead className="text-right">Avg input tokens</TableHead>
           <TableHead className="text-right">Avg output tokens</TableHead>
           {hasSummary && (
@@ -70,6 +78,21 @@ export function SummaryTable({ summaries }: { summaries: PromptSummary[] }) {
             <TableCell className="text-right tabular-nums">
               {s.clarity}
             </TableCell>
+            {hasRag && (
+              <>
+                <TableCell className="text-right tabular-nums">
+                  {s.rag
+                    ? `${s.rag.evidenceFound}/${s.rag.evidenceCases}`
+                    : "–"}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {s.rag?.faithfulness ?? "–"}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {s.rag ? `${s.rag.citedAnswers}/${s.rag.answers}` : "–"}
+                </TableCell>
+              </>
+            )}
             <TableCell className="text-right tabular-nums">
               {s.avgInputTokens ?? "–"}
             </TableCell>
