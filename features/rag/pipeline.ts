@@ -23,6 +23,10 @@ export interface RetrievalSettings {
   method: "semantic" | "hybrid"
   // Reorder the candidates with a cross-encoder.
   rerank: boolean
+  // Merge the reranker's order with the search's order by rank, instead of
+  // replacing it, so one model's mistake cannot push out a passage the other
+  // ranked well.
+  fuseRerank?: boolean
   // Candidates found before reranking and fusing.
   candidates: number
   // Sources given to the model.
@@ -135,7 +139,7 @@ export async function runRetrieval({
         scorePairs: need(calls.scorePairs, "scorePairs"),
       })
     )
-    ranked = value
+    ranked = settings.fuseRerank ? fuse([ranked, value], ranked.length) : value
     steps.push({ type: "rerank", candidates: ranked.length, ms })
   }
 

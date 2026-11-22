@@ -160,6 +160,30 @@ describe("runRetrieval", () => {
     expect(result.steps.map((s) => s.type)).toEqual(["search", "rerank"])
   })
 
+  it("can merge the reranker's order with the search's order", async () => {
+    // Search ranks price, then range. The reranker prefers age, then range.
+    const result = await runRetrieval({
+      index,
+      turns: [{ role: "user", text: "price range" }],
+      settings: settings({ rerank: true, fuseRerank: true, k: 3 }),
+      calls: {
+        embed: async () => [1, 0.5, 0.1],
+        scorePairs: async (_, texts) =>
+          texts.map((text) =>
+            text.includes("16") ? 0.9 : text.includes("55") ? 0.5 : 0.1
+          ),
+      },
+    })
+    // Reranked alone, price would be last. Fused, the search's top pick
+    // ties with the reranker's and stays first; range, second in both, is
+    // last, because 1/61 + 1/63 is more than 2/62.
+    expect(result.sources.map((s) => s.chunkId)).toEqual([
+      "doc#0",
+      "doc#2",
+      "doc#1",
+    ])
+  })
+
   it("drops weak matches from a plain semantic search", async () => {
     const result = await runRetrieval({
       index,

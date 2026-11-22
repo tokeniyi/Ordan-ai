@@ -53,6 +53,16 @@ export const PIPELINES: PipelineConfig[] = [
     settings: s({ plan: true, rerank: true }),
   },
   {
+    id: "rerank-fused",
+    label: "Semantic + rerank, fused",
+    settings: s({ rerank: true, fuseRerank: true }),
+  },
+  {
+    id: "plan-rerank-fused",
+    label: "Plan + rerank, fused",
+    settings: s({ plan: true, rerank: true, fuseRerank: true }),
+  },
+  {
     id: "plan-hybrid-rerank",
     label: "Plan + hybrid + rerank",
     settings: s({ plan: true, method: "hybrid", rerank: true }),
