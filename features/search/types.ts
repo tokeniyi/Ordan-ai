@@ -45,7 +45,8 @@ export interface SearchIndex {
   chunks: IndexedChunk[]
 }
 
-export const SEARCH_METHODS = ["semantic", "keyword"] as const
+// "hybrid" merges the semantic and keyword rankings.
+export const SEARCH_METHODS = ["semantic", "keyword", "hybrid"] as const
 
 export type SearchMethod = (typeof SEARCH_METHODS)[number]
 

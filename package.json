@@ -14,7 +14,8 @@
     "test:e2e": "playwright test",
     "eval": "tsx scripts/eval.ts",
     "index": "tsx scripts/build-index.ts",
-    "eval:retrieval": "tsx scripts/eval-retrieval.ts"
+    "eval:retrieval": "tsx scripts/eval-retrieval.ts",
+    "eval:pipelines": "tsx scripts/eval-pipelines.ts"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^3.0.92",

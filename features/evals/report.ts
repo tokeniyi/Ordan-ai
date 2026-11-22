@@ -61,14 +61,24 @@ export function toMarkdown(report: RunReport) {
             s.rag.faithfulness,
             `${s.rag.citedAnswers}/${s.rag.answers}`,
             s.rag.invalidCitations,
+            s.rag.searched === undefined
+              ? "all"
+              : `${s.rag.searched}/${s.rag.answers}`,
           ],
         ]
       : []
   )
   const ragTable = ragRows.length
-    ? `\n## Retrieval and grounding\n\nFound counts the answerable cases where a source held the passage that answers them. Faithful is the judge's mean score, 1 to 5, for claims being supported by the sources. Cited counts answers with at least one citation.\n\n${table(
+    ? `\n## Retrieval and grounding\n\nFound counts the answerable cases where a source held the passage that answers them. Faithful is the judge's mean score, 1 to 5, for claims being supported by the sources. Cited counts answers with at least one citation. Searched counts the messages the planner sent to the search.\n\n${table(
         [
-          ["Prompt", "Found", "Faithful", "Cited", "Invalid citations"],
+          [
+            "Prompt",
+            "Found",
+            "Faithful",
+            "Cited",
+            "Invalid citations",
+            "Searched",
+          ],
           ...ragRows,
         ]
       )}\n`

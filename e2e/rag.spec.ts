@@ -7,7 +7,24 @@ import { mockModel } from "./mock-model"
 const rag: RagInfo = {
   knowledge: "kestrel",
   query: "What does the Family plan cost?",
-  ms: 12,
+  searched: true,
+  ms: 1840,
+  steps: [
+    {
+      type: "plan",
+      search: true,
+      query: "What does the Family plan cost?",
+      ms: 1700,
+    },
+    {
+      type: "search",
+      method: "semantic",
+      searches: 1,
+      candidates: 20,
+      ms: 20,
+    },
+    { type: "rerank", candidates: 20, ms: 120 },
+  ],
   sources: [
     {
       n: 1,
@@ -66,8 +83,17 @@ test("answers from the help centre with sources and inline citations", async ({
     page.getByText("| Family | €49 a month | K2 cargo bike |")
   ).toBeVisible()
 
-  // The Sources line opens into the passages, each with its text.
+  // The steps line opens into what was searched and how.
   await page.mouse.move(0, 0)
+  await page.getByRole("button", { name: /Searched in 3 steps/ }).click()
+  const steps = page.getByLabel("Retrieval steps")
+  await expect(
+    steps.getByText("Searched for “What does the Family plan cost?”")
+  ).toBeVisible()
+  await expect(steps.getByText("Found 20 candidates")).toBeVisible()
+  await expect(steps.getByText("Reranked them")).toBeVisible()
+
+  // The Sources line opens into the passages, each with its text.
   await page.getByRole("button", { name: "Used 2 sources" }).click()
   await page
     .getByRole("button", { name: /\[2\] Memberships and prices › Deposit/ })
@@ -82,4 +108,37 @@ test("answers from the help centre with sources and inline citations", async ({
     /Kestrel help centre/
   )
   await expect(citation).toBeVisible()
+})
+
+test("says when a message needed no search", async ({ page }) => {
+  await mockModel(page, {
+    metadata: () => ({
+      rag: {
+        knowledge: "kestrel",
+        query: "Hi there!",
+        searched: false,
+        ms: 900,
+        sources: [],
+        steps: [{ type: "plan", search: false, query: "Hi there!", ms: 900 }],
+      },
+    }),
+    reply: () => "Hello! Ask me anything about Kestrel.",
+  })
+  await page.goto("/")
+  await page.getByRole("combobox", { name: "Knowledge" }).click()
+  await page.getByRole("option", { name: /Kestrel help centre/ }).click()
+
+  const input = page.getByRole("textbox").first()
+  await input.fill("Hi there!")
+  await input.press("Enter")
+
+  await expect(page.getByText("Hello! Ask me anything")).toBeVisible()
+  await page.getByRole("button", { name: /No search needed/ }).click()
+  await expect(
+    page.getByText("Skipped the search: the message asks for nothing new")
+  ).toBeVisible()
+  await expect(page.getByText(/No matching passages/)).toHaveCount(0)
+  await expect(
+    page.getByRole("button", { name: /Used \d+ source/ })
+  ).toHaveCount(0)
 })

@@ -21,7 +21,7 @@ function hit(rank: number, docTitle: string, heading: string, text: string) {
   } satisfies SearchHit
 }
 
-test("/search shows semantic and keyword results side by side", async ({
+test("/search shows semantic, keyword and hybrid results side by side", async ({
   page,
 }) => {
   const requests: { query: string; strategy: string; method: string }[] = []
@@ -31,7 +31,7 @@ test("/search shows semantic and keyword results side by side", async ({
     await route.fulfill({
       json: {
         hits:
-          body.method === "semantic"
+          body.method !== "keyword"
             ? [
                 hit(
                   1,
@@ -64,9 +64,18 @@ test("/search shows semantic and keyword results side by side", async ({
   await expect(semantic.getByRole("listitem")).toHaveCount(2)
   await expect(semantic.getByText("Up to 30 days in a row.")).toBeVisible()
   await expect(semantic.getByText("1. Riding rules")).toBeVisible()
+  await expect(
+    page
+      .getByRole("list", { name: "Hybrid results" })
+      .getByText("Up to 30 days in a row.")
+  ).toBeVisible()
   await expect(page.getByText("No chunk matched.")).toBeVisible()
 
-  expect(requests.map((r) => r.method).sort()).toEqual(["keyword", "semantic"])
+  expect(requests.map((r) => r.method).sort()).toEqual([
+    "hybrid",
+    "keyword",
+    "semantic",
+  ])
   expect(requests[0]).toMatchObject({
     query: "Can I take the bike on holiday?",
     strategy: "recursive-headings",
@@ -75,6 +84,6 @@ test("/search shows semantic and keyword results side by side", async ({
   // Changing the chunking runs the search again with the new strategy.
   await page.getByRole("combobox", { name: "Chunking" }).click()
   await page.getByRole("option", { name: /Fixed size/ }).click()
-  await expect.poll(() => requests.length).toBe(4)
-  expect(requests.slice(2).every((r) => r.strategy === "fixed")).toBe(true)
+  await expect.poll(() => requests.length).toBe(6)
+  expect(requests.slice(3).every((r) => r.strategy === "fixed")).toBe(true)
 })

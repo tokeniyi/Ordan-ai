@@ -26,6 +26,21 @@ export function formatSources(sources: RagSource[]) {
   return `<sources>\n${blocks.join("\n\n")}\n</sources>`
 }
 
+// What the model is told when the planner decided not to search, such as for
+// "thanks" or "say that in one sentence". The Kestrel rules stay, so a
+// question the planner skipped by mistake is still not answered from memory.
+export const NO_SEARCH_NOTE = `<sources>
+No search was run for this message, because it asks for nothing new, such as thanks or a request to reword the previous answer. Reply to it from the conversation and do not cite sources. Do not add facts about Kestrel that are not already in the conversation.
+</sources>`
+
+export function withoutSearch(system: string) {
+  return `${system}
+
+${RAG_INSTRUCTIONS}
+
+${NO_SEARCH_NOTE}`
+}
+
 // Adds the instructions and the retrieved sources to the system prompt.
 export function withSources(system: string, sources: RagSource[]) {
   return `${system}

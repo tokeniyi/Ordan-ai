@@ -32,8 +32,10 @@ import { type HistoryMessage } from "@/features/history/types"
 import { buildPrompt } from "@/features/prompts"
 import { type PromptDefinition } from "@/features/prompts/types"
 import { checkCitations, stripCitations } from "@/features/rag/citations"
+import { completeWith } from "@/features/rag/complete"
 import { retrieveKestrel } from "@/features/rag/kestrel"
-import { withSources } from "@/features/rag/prompt"
+import { withoutSearch, withSources } from "@/features/rag/prompt"
+import { type Complete, type Turn } from "@/features/rag/query"
 import { type KnowledgeBase, type RagSource } from "@/features/rag/types"
 import { firstRelevantRank } from "@/features/search/metrics"
 
@@ -74,8 +76,19 @@ export interface EvalCalls {
   generate: (input: GenerateInput) => Promise<Answer>
   judge: typeof judgeAnswer
   summarize: (input: SummarizeInput) => Promise<Summary>
-  // Finds the sources for a question. Runs locally, so it is not cached.
-  retrieve: (query: string) => Promise<RagSource[]>
+  // Finds the sources for the newest message. Search runs locally and is
+  // not cached. Its model calls go through `complete`, which the runner
+  // caches.
+  retrieve: (request: {
+    turns: Turn[]
+    complete: Complete
+  }) => Promise<{ searched: boolean; query: string; sources: RagSource[] }>
+  // One planning or expansion call for retrieval.
+  complete: (request: {
+    model: string
+    system: string
+    prompt: string
+  }) => Promise<string>
 }
 
 async function generateAnswer({
@@ -126,7 +139,9 @@ const defaultCalls: EvalCalls = {
   generate: generateAnswer,
   judge: judgeAnswer,
   summarize: summarizeHistory,
-  retrieve: async (query) => (await retrieveKestrel(query)).sources,
+  retrieve: retrieveKestrel,
+  complete: ({ model, ...request }) =>
+    completeWith(model, { maxRetries: MAX_RETRIES })(request),
 }
 
 interface RunContext {
@@ -200,6 +215,28 @@ async function cached<T>(
   }
 }
 
+// A retrieval model call, cached under the same key as `pnpm
+// eval:pipelines`, so the two share replies. The latency is cached with the
+// reply, as that script expects.
+async function cachedComplete(
+  context: RunContext,
+  request: { system: string; prompt: string }
+) {
+  const entry = await cached(
+    context,
+    cacheKey({ kind: "retrieval-query", model: context.model, ...request }),
+    async () => {
+      const started = Date.now()
+      const text = await context.calls.complete({
+        model: context.model,
+        ...request,
+      })
+      return { text, ms: Date.now() - started }
+    }
+  )
+  return entry.text
+}
+
 async function runCase(
   context: RunContext,
   prompt: PromptDefinition,
@@ -220,14 +257,28 @@ async function runCase(
   let caseContext: CaseContext | undefined
   let summaryCost = 0
   let sources: RagSource[] | undefined
+  let searched: { searched: boolean; query: string } | undefined
 
   let answer: Answer
   try {
     // As in the chat route: sources for the newest question go into the
     // system prompt before the history is fitted to the budget.
     if (context.knowledge !== "none") {
-      sources = await context.calls.retrieve(testCase.input)
-      system = withSources(system, sources)
+      const retrieval = await context.calls.retrieve({
+        turns: [
+          ...(testCase.history ?? []).map((turn) => ({
+            role: turn.role,
+            text: turn.content,
+          })),
+          { role: "user", text: testCase.input },
+        ],
+        complete: (request) => cachedComplete(context, request),
+      })
+      sources = retrieval.sources
+      searched = retrieval
+      system = retrieval.searched
+        ? withSources(system, sources)
+        : withoutSearch(system)
     }
 
     if (testCase.history?.length) {
@@ -277,7 +328,10 @@ async function runCase(
   }
 
   const checks = runChecks(testCase.checks ?? [], answer.text)
-  const rag = sources && ragResult(testCase, sources, answer.text)
+  const rag = sources && {
+    ...ragResult(testCase, sources, answer.text),
+    ...(searched && { searched: searched.searched, query: searched.query }),
+  }
   const result: CaseResult = {
     ...base,
     answer: answer.text,
