@@ -34,11 +34,11 @@ The goal is not to build another chatbot. The chat is the test bench: each phase
 - History budgeting: a sliding window or a rolling summary keeps long chats inside a token budget, with a context indicator and checkpoints
 - Search over a sample help centre: four chunking strategies, local embeddings, semantic and keyword (BM25) search side by side, measured with recall@k and MRR
 - Answers from the sample help centre with citations (RAG): a Knowledge picker in the chat, inline citations and a sources list, measured for correctness, faithfulness and retrieval
+- Advanced retrieval: a query planner that rewrites follow-ups and skips messages that need no search, hybrid search, a local reranker, and HyDE and multi-query measured side by side, with the steps shown in the chat
 - Light and dark themes
 
 ### Upcoming features
 
-- Hybrid search and reranking
 - Semantic caching
 - Multi-model routing
 - Agent workflows
@@ -86,6 +86,7 @@ Open http://localhost:3000.
 | `pnpm eval`      | Run the evaluation                             |
 | `pnpm index`     | Chunk and embed the search corpus              |
 | `pnpm eval:retrieval` | Measure search with recall@k and MRR      |
+| `pnpm eval:pipelines` | Measure the retrieval pipelines (query planning, HyDE, multi-query, hybrid, reranking) |
 
 CI runs lint, typecheck, unit tests, the build and the browser tests on every pull request. The browser tests mock model calls, so CI needs no API key.
 

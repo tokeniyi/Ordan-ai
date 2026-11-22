@@ -39,6 +39,7 @@ Ordan AI is a learning playground for AI engineering. The chat is the test bench
 | `pnpm eval` | Run the eval against real models. Needs `KILO_API_KEY`. |
 | `pnpm index` | Chunk and embed `data/corpus/kestrel/` into `data/index/`. Run after changing the corpus or a chunker, and commit the output. |
 | `pnpm eval:retrieval` | Measure search (recall@k, MRR). Local and free. |
+| `pnpm eval:pipelines` | Measure the phase 6 retrieval pipelines. Search and reranking are local; planning and expansion call the eval model and are cached. |
 
 CI (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests, the build and the browser tests on every pull request. Run the same steps locally before pushing.
 
@@ -70,6 +71,7 @@ CI (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests, the build and 
 - **The `/evals` page shows the newest run.** A run with one prompt makes the summary table one row long. `e2e/evals.spec.ts` checks the phase 2 run by its own page for that reason.
 - **Embeddings run locally.** `embedTexts` in `lib/ai/provider.ts` uses Transformers.js. The first call downloads about 90 MB from Hugging Face into `.cache/transformers` (not committed). Unit tests never load it: they pass a fake embedding function. Chunk sizes are counted with the embedding model's tokenizer without its two special tokens, because counts of pieces must add up.
 - **RAG puts sources in the system prompt.** `features/rag/prompt.ts` adds them after the prompt and before the history is fitted, so the history budget counts them. Each reply numbers its own sources, which is why the route strips citations from earlier answers (`features/rag/history.ts`). Sources reach the browser as message metadata (`rag`), not as AI SDK source parts, because source parts have no field for the passage text the hover card shows.
+- **Retrieval makes a model call.** With the Kestrel help centre on, the route asks the chat's model whether to search and what with (`features/rag/query.ts`) before it searches. A failed call falls back to searching with the message as it is. The eval runner and `pnpm eval:pipelines` cache these calls under the same key, so they share replies. The reranker (`rerankScores` in `lib/ai/provider.ts`) is a second local model, about 90 MB, downloaded on first use like the embedding model.
 - **Index files must match the corpus.** `features/search/corpus.test.ts` fails if a page changed without `pnpm index`, or if a retrieval question's passage is not whole in some chunk. `features/evals/datasets/rag.test.ts` does the same for the RAG test set.
 - **Free-tier rate limit.** Kilo allows 200 free-model requests an hour per IP address. A full core run is 160 calls. Use `--prompts` and `--cases` to stay inside it. The eval cache (`evals/.cache/`, not committed) resumes a run that stopped at the limit.
 
@@ -78,7 +80,7 @@ CI (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests, the build and 
 - The network goes through a proxy. Node's built-in `fetch` ignores `HTTPS_PROXY`, so run evals and scripts with `NODE_USE_ENV_PROXY=1`. The proxy adds the Kilo key, so set `KILO_API_KEY` to any placeholder value: `NODE_USE_ENV_PROXY=1 KILO_API_KEY=placeholder pnpm eval ...`.
 - `next start` did not reach the gateway through the proxy, even with that variable. To check a server-side change against real models, call the feature's functions from a `tsx` script, as the eval runner does.
 - Playwright and Chromium are installed. Do not run `playwright install`.
-- Hosts outside the allowlist are blocked. The Ordan-ai environment allows Hugging Face (`huggingface.co` and its file hosts, such as `us.aws.cdn.hf.co`) so the embedding model can download. Run `pnpm index` and `pnpm eval:retrieval` with `NODE_USE_ENV_PROXY=1`.
+- Hosts outside the allowlist are blocked. The Ordan-ai environment allows Hugging Face (`huggingface.co` and its file hosts, such as `us.aws.cdn.hf.co`) so the embedding model can download. Run `pnpm index`, `pnpm eval:retrieval` and `pnpm eval:pipelines` with `NODE_USE_ENV_PROXY=1`.
 
 ## Git and pull requests
 

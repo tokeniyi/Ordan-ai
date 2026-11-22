@@ -1,0 +1,1970 @@
+{
+  "id": "2026-11-22T18-24-12-948Z",
+  "createdAt": "2026-11-22T18:24:12.948Z",
+  "dataset": "rag",
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "judgeModel": "nvidia/nemotron-3.5-super-vl:free",
+  "history": {
+    "strategy": "summary",
+    "budget": 4000
+  },
+  "knowledge": "kestrel",
+  "summaries": [
+    {
+      "promptId": "structured",
+      "promptVersion": 1,
+      "cases": 32,
+      "passed": 30,
+      "errors": 0,
+      "checksPassed": 24,
+      "checksTotal": 25,
+      "correctness": 4.72,
+      "relevance": 4.84,
+      "clarity": 4.97,
+      "quality": 97,
+      "avgInputTokens": 799,
+      "avgSummaryTokens": 0,
+      "avgOutputTokens": 143,
+      "avgLatencyMs": 4411,
+      "totalCostUsd": 0,
+      "rag": {
+        "evidenceCases": 24,
+        "evidenceFound": 22,
+        "faithfulness": 4.94,
+        "citedAnswers": 26,
+        "answers": 32,
+        "invalidCitations": 0,
+        "searched": 28
+      }
+    }
+  ],
+  "results": [
+    {
+      "caseId": "weekender-price",
+      "category": "answerable",
+      "input": "What does the weekend-only plan cost?",
+      "promptId": "structured",
+      "answer": "The Weekender plan costs €15 a month and gives you a K1 city bike from Friday to Monday [1].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "15"
+            ]
+          },
+          "label": "Mentions all of: 15",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 4212,
+      "inputTokens": 829,
+      "outputTokens": 109,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "memberships#1",
+            "score": 0.451
+          },
+          {
+            "n": 2,
+            "chunkId": "memberships#3",
+            "score": 0.377
+          },
+          {
+            "n": 3,
+            "chunkId": "app-and-account#4",
+            "score": 0.001
+          },
+          {
+            "n": 4,
+            "chunkId": "memberships#6",
+            "score": 0
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "What does the weekend-only plan cost?"
+      },
+      "judge": {
+        "reason": "The answer correctly states the Weekender plan costs €15 a month and includes the K1 city bike Friday to Monday, matching both the reference and source 1. It answers exactly what was asked with minimal, relevant context and is clearly written. Every claim is backed by source 1, which is properly cited.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "annual-cancel",
+      "category": "answerable",
+      "input": "I signed up for the annual plan two months ago. Do I get my money back if I cancel now?",
+      "promptId": "structured",
+      "answer": "Yes. Since you’re past the first 30 days, you’ll receive a refund for the remaining months minus a €40 early‑cancellation fee [1].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "40"
+            ]
+          },
+          "label": "Mentions all of: 40",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 5180,
+      "inputTokens": 824,
+      "outputTokens": 211,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "memberships#6",
+            "score": 0.089
+          },
+          {
+            "n": 2,
+            "chunkId": "memberships#5",
+            "score": 0.009
+          },
+          {
+            "n": 3,
+            "chunkId": "memberships#3",
+            "score": 0.001
+          },
+          {
+            "n": 4,
+            "chunkId": "memberships#4",
+            "score": 0
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "I signed up for the annual plan two months ago. Do I get my money back if I cancel now?"
+      },
+      "judge": {
+        "reason": "The answer correctly states that, after the first 30 days, the remaining months are refunded minus a €40 early-cancellation fee, and it cites source 1. It is relevant, concise, and easy to follow. The only slight imprecision is opening with “Yes” when the reference characterizes the outcome as “Partly,” since the customer does not get the full annual fee back; however, the explanation immediately clarifies that only the remaining months minus the fee are refunded.",
+        "correctness": 4,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 93
+    },
+    {
+      "caseId": "pause-annual",
+      "category": "answerable",
+      "input": "Can I pause my Annual Commuter membership while I'm away?",
+      "promptId": "structured",
+      "answer": "No, pauses are not available on the Annual Commuter plan because it is already discounted [1].",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 2554,
+      "inputTokens": 804,
+      "outputTokens": 107,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "memberships#5",
+            "score": 1
+          },
+          {
+            "n": 2,
+            "chunkId": "memberships#6",
+            "score": 0.683
+          },
+          {
+            "n": 3,
+            "chunkId": "memberships#3",
+            "score": 0.035
+          },
+          {
+            "n": 4,
+            "chunkId": "app-and-account#4",
+            "score": 0.033
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "Can I pause my Annual Commuter membership while I'm away?"
+      },
+      "judge": {
+        "reason": "The answer directly and correctly states that pauses are not available on the Annual Commuter plan because it is already discounted, matching both the reference and source 1. It is concise, relevant, and fully supported by the cited source.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "cargo-children",
+      "category": "answerable",
+      "input": "How many kids fit in the cargo bike, and up to what age?",
+      "promptId": "structured",
+      "answer": "The K2 cargo bike fits **two children**, up to **six years old** [1, 2].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "two",
+              "2"
+            ]
+          },
+          "label": "Mentions one of: two, 2",
+          "passed": true
+        },
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "six",
+              "6"
+            ]
+          },
+          "label": "Mentions one of: six, 6",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2641,
+      "inputTokens": 872,
+      "outputTokens": 153,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "bikes-and-batteries#2",
+            "score": 0.995
+          },
+          {
+            "n": 2,
+            "chunkId": "riding-rules#3",
+            "score": 0.983
+          },
+          {
+            "n": 3,
+            "chunkId": "riding-rules#1",
+            "score": 0.023
+          },
+          {
+            "n": 4,
+            "chunkId": "memberships#1",
+            "score": 0.002
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1,
+          2
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "How many kids fit in the cargo bike, and up to what age?"
+      },
+      "judge": {
+        "reason": "The answer matches the reference exactly: two children up to six years old. It is concise, directly answers the question, and both claims are supported by sources 1 and 2, which are properly cited.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "rider-weight",
+      "category": "answerable",
+      "input": "Is there a weight limit on the city bike?",
+      "promptId": "structured",
+      "answer": "Yes. The K1 city bike has a combined rider-and-luggage limit of 120 kg, and the rear rack can carry up to 25 kg [1, 2].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "120"
+            ]
+          },
+          "label": "Mentions all of: 120",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 4164,
+      "inputTokens": 900,
+      "outputTokens": 180,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "riding-rules#3",
+            "score": 0.996
+          },
+          {
+            "n": 2,
+            "chunkId": "bikes-and-batteries#1",
+            "score": 0.982
+          },
+          {
+            "n": 3,
+            "chunkId": "bikes-and-batteries#2",
+            "score": 0.006
+          },
+          {
+            "n": 4,
+            "chunkId": "memberships#1",
+            "score": 0.002
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1,
+          2
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "Is there a weight limit on the city bike?"
+      },
+      "judge": {
+        "reason": "The answer directly confirms there is a weight limit and states the exact figures from the reference: 120 kg combined rider-and-luggage limit and 25 kg rear rack limit. It is concise, well organized, and every claim is backed by sources 1 and 2, which are correctly cited.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "saltmarsh-delivery",
+      "category": "answerable",
+      "input": "How much is delivery to Saltmarsh?",
+      "promptId": "structured",
+      "answer": "Delivery to Saltmarsh costs €15, charged once with your first payment [1].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "15"
+            ]
+          },
+          "label": "Mentions all of: 15",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 4575,
+      "inputTokens": 787,
+      "outputTokens": 78,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "delivery-and-returns#1",
+            "score": 0.999
+          },
+          {
+            "n": 2,
+            "chunkId": "delivery-and-returns#3",
+            "score": 0.019
+          },
+          {
+            "n": 3,
+            "chunkId": "memberships#3",
+            "score": 0
+          },
+          {
+            "n": 4,
+            "chunkId": "theft-and-accidents#5",
+            "score": 0
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "How much is delivery to Saltmarsh?"
+      },
+      "judge": {
+        "reason": "The answer correctly states that delivery to Saltmarsh costs €15, charged once with the first payment, which matches both the reference and source 1. It answers exactly what was asked with no extra or missing information, is concise and easy to follow, and the claim is fully supported by source 1 with an appropriate citation.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "sunday-delivery",
+      "category": "answerable",
+      "input": "Can you deliver my bike on a Sunday?",
+      "promptId": "structured",
+      "answer": "The help centre doesn't explicitly state delivery days, but the depot is closed on Sundays and only open Monday to Saturday from 8:00 to 18:00 for collections, returns, and other in-person services [1, 2]. This suggests Sunday delivery is not available.",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 4737,
+      "inputTokens": 823,
+      "outputTokens": 213,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "delivery-and-returns#4",
+            "score": 0.984
+          },
+          {
+            "n": 2,
+            "chunkId": "about-and-contact#2",
+            "score": 0.542
+          },
+          {
+            "n": 3,
+            "chunkId": "memberships#7",
+            "score": 0.41
+          },
+          {
+            "n": 4,
+            "chunkId": "delivery-and-returns#3",
+            "score": 0.358
+          }
+        ],
+        "hasEvidence": true,
+        "cited": [
+          1,
+          2
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "Can you deliver my bike on a Sunday?"
+      },
+      "judge": {
+        "reason": "The assistant’s bottom line—that Sunday delivery is not available—agrees with the reference, so it is mostly right. However, it hedges (“suggests”) instead of giving the reference’s clear “No,” and it omits the explicit statement that there are no Sunday/public-holiday deliveries and the Saturday slot times. That is an important missing point, so correctness is not a 5.\n\nIt stays on the Sunday question and does not add much irrelevant material, so relevance is high, though the indirect phrasing keeps it from being a perfect answer.\n\nThe answer is short and easy to follow, with no real padding, so clarity is strong.\n\nFor faithfulness, the claims about depot hours (closed Sunday, open Monday–Saturday) are supported by sources [1] and [2], and the answer correctly notes the sources do not explicitly state delivery days. But the leap to “Sunday delivery is not available” is an inference from depot hours, not something the sources actually state, so one claim is not directly backed.\n\nScores: correctness 3, relevance 4, clarity 4, faithfulness 3.",
+        "correctness": 3,
+        "relevance": 4,
+        "clarity": 4,
+        "faithfulness": 3
+      },
+      "quality": 73
+    },
+    {
+      "caseId": "late-breakdown",
+      "category": "answerable",
+      "input": "My bike broke down at 11pm. How am I supposed to get home?",
+      "promptId": "structured",
+      "answer": "If your bike breaks down outside the 7:00–21:00 roadside‑help window (which includes 11 pm), Kestrel will collect the bike the next day and refund your taxi fare home up to €30 [1].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "30"
+            ]
+          },
+          "label": "Mentions all of: 30",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 3626,
+      "inputTokens": 864,
+      "outputTokens": 170,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "repairs-and-maintenance#3",
+            "score": 0.029
+          },
+          {
+            "n": 2,
+            "chunkId": "repairs-and-maintenance#1",
+            "score": 0.002
+          },
+          {
+            "n": 3,
+            "chunkId": "theft-and-accidents#2",
+            "score": 0.001
+          },
+          {
+            "n": 4,
+            "chunkId": "theft-and-accidents#1",
+            "score": 0.001
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "My bike broke down at 11pm. How am I supposed to get home?"
+      },
+      "judge": {
+        "reason": "The answer correctly identifies that 11 pm falls outside the 7:00–21:00 roadside‑help window, and accurately states that the bike will be collected the next day with a taxi refund up to €30. It directly answers how to get home, is concise and well organized, and every claim is backed by source 1 with a proper citation.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "chain-lock",
+      "category": "answerable",
+      "input": "I lost the chain lock. What does a new one cost?",
+      "promptId": "structured",
+      "answer": "A replacement chain lock costs €35 [1].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "35"
+            ]
+          },
+          "label": "Mentions all of: 35",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2779,
+      "inputTokens": 843,
+      "outputTokens": 80,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "theft-and-accidents#5",
+            "score": 1
+          },
+          {
+            "n": 2,
+            "chunkId": "theft-and-accidents#1",
+            "score": 0.08
+          },
+          {
+            "n": 3,
+            "chunkId": "theft-and-accidents#2",
+            "score": 0.001
+          },
+          {
+            "n": 4,
+            "chunkId": "repairs-and-maintenance#4",
+            "score": 0.001
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "I lost the chain lock. What does a new one cost?"
+      },
+      "judge": {
+        "reason": "The answer correctly states that a replacement chain lock costs €35, which matches both the reference and source 1. It directly answers the question without adding unnecessary information, is concise and easy to follow, and the claim is fully supported by the cited source.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "login-code",
+      "category": "answerable",
+      "input": "How long is the sign-in code valid?",
+      "promptId": "structured",
+      "answer": "The sign-in code expires after ten minutes [1].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "ten minutes",
+              "10 minutes"
+            ]
+          },
+          "label": "Mentions one of: ten minutes, 10 minutes",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2892,
+      "inputTokens": 777,
+      "outputTokens": 72,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "app-and-account#1",
+            "score": 0.988
+          },
+          {
+            "n": 2,
+            "chunkId": "riding-rules#1",
+            "score": 0.001
+          },
+          {
+            "n": 3,
+            "chunkId": "riding-rules#6",
+            "score": 0
+          },
+          {
+            "n": 4,
+            "chunkId": "delivery-and-returns#3",
+            "score": 0
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "How long is the sign-in code valid?"
+      },
+      "judge": {
+        "reason": "The answer correctly states that the sign-in code expires after ten minutes, matching the reference exactly. It answers precisely what was asked with no extra content, is clear and concise, and the claim is fully supported by source 1.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "partner-rides",
+      "category": "answerable",
+      "input": "Can my partner ride the bike too? I'm on the Commuter plan.",
+      "promptId": "structured",
+      "answer": "No. On the Commuter plan only the member may ride the bike. The Family plan is the only one that allows adding a second adult rider from the same address [1].",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 6689,
+      "inputTokens": 807,
+      "outputTokens": 121,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "app-and-account#4",
+            "score": 0.99
+          },
+          {
+            "n": 2,
+            "chunkId": "memberships#3",
+            "score": 0.099
+          },
+          {
+            "n": 3,
+            "chunkId": "memberships#5",
+            "score": 0.07
+          },
+          {
+            "n": 4,
+            "chunkId": "memberships#6",
+            "score": 0.013
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "Can my partner ride the bike too? I'm on the Commuter plan."
+      },
+      "judge": {
+        "reason": "The answer directly answers the question with “No” and correctly states that on the Commuter plan only the member may ride. It also accurately notes that the Family plan allows adding one more adult rider from the same address, which matches both the reference and source 1. The answer is concise, well organized, and adds no irrelevant information. Every claim is backed by source 1, which lists Commuter, Weekender, and Annual Commuter as member-only and identifies the Family plan as the one allowing an additional adult rider from the same address.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "helmet",
+      "category": "answerable",
+      "input": "Do I need a helmet? Can I get one from you?",
+      "promptId": "structured",
+      "answer": "Port Aven law does not require a helmet on electric bikes that stop assisting above 25 km/h, but Kestrel strongly recommends wearing one. You can add a helmet to any membership for €3 a month [1].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "€3",
+              "3 a month",
+              "3 per"
+            ]
+          },
+          "label": "Mentions one of: €3, 3 a month, 3 per",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 3669,
+      "inputTokens": 827,
+      "outputTokens": 161,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "riding-rules#2",
+            "score": 0.151
+          },
+          {
+            "n": 2,
+            "chunkId": "riding-rules#5",
+            "score": 0
+          },
+          {
+            "n": 3,
+            "chunkId": "app-and-account#2",
+            "score": 0
+          },
+          {
+            "n": 4,
+            "chunkId": "theft-and-accidents#3",
+            "score": 0
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "Do I need a helmet? Can I get one from you?"
+      },
+      "judge": {
+        "reason": "The answer correctly addresses both parts of the question. It states that Port Aven law does not require a helmet on electric bikes that stop assisting above 25 km/h, but that the service strongly recommends one, and that a helmet can be added to any membership for €3 a month. These points match source 1 and the reference. The answer is concise, directly relevant, and easy to follow. Every claim is supported by source 1 (the reference to “Kestrel” corresponds to the “we” in source 1 and is confirmed by the reference).",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "complaint-escalation",
+      "category": "answerable",
+      "input": "Kestrel didn't sort out my complaint. Is there anyone else I can go to?",
+      "promptId": "structured",
+      "answer": "Yes. If Kestrel cannot resolve your complaint, you can take it to the Port Aven Consumer Board, which is free [1].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "Consumer Board"
+            ]
+          },
+          "label": "Mentions all of: Consumer Board",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 3455,
+      "inputTokens": 800,
+      "outputTokens": 147,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "about-and-contact#3",
+            "score": 0.976
+          },
+          {
+            "n": 2,
+            "chunkId": "theft-and-accidents#4",
+            "score": 0.061
+          },
+          {
+            "n": 3,
+            "chunkId": "riding-rules#4",
+            "score": 0.005
+          },
+          {
+            "n": 4,
+            "chunkId": "about-and-contact#4",
+            "score": 0.004
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "Kestrel didn't sort out my complaint. Is there anyone else I can go to?"
+      },
+      "judge": {
+        "reason": "Correctness: The answer matches the reference exactly—yes, the complaint can go to the Port Aven Consumer Board, which is free. Relevance: It answers the question directly with no extra or missing information. Clarity: It is short, easy to follow, and well organized. Faithfulness: The claim is fully supported by source 1, which states that if Kestrel cannot agree, the complaint can be taken to the Port Aven Consumer Board for free, and the answer cites [1].",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "card-declined",
+      "category": "answerable",
+      "input": "My bank card has bounced twice this month. Can I still ride?",
+      "promptId": "structured",
+      "answer": "No. After two failed payment attempts the bike is locked remotely until the balance is paid [1].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "lock"
+            ]
+          },
+          "label": "Mentions one of: lock",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2594,
+      "inputTokens": 850,
+      "outputTokens": 79,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "memberships#7",
+            "score": 0
+          },
+          {
+            "n": 2,
+            "chunkId": "app-and-account#5",
+            "score": 0
+          },
+          {
+            "n": 3,
+            "chunkId": "theft-and-accidents#3",
+            "score": 0
+          },
+          {
+            "n": 4,
+            "chunkId": "memberships#6",
+            "score": 0
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "My bank card has bounced twice this month. Can I still ride?"
+      },
+      "judge": {
+        "reason": "The answer directly answers the question with “No” and correctly states that after two failed payment attempts the bike is locked remotely until the balance is paid, matching the reference exactly. It is concise, well organized, and adds nothing unnecessary. The claim is fully supported by source 1, which says the same thing.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "winter-range",
+      "category": "answerable",
+      "input": "It's freezing outside. Will the battery run out sooner?",
+      "promptId": "structured",
+      "answer": "Yes. Below 5 °C the battery holds less charge, so you can expect roughly a quarter less range than usual [1].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "quarter",
+              "25%",
+              "25 %"
+            ]
+          },
+          "label": "Mentions one of: quarter, 25%, 25 %",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 3807,
+      "inputTokens": 845,
+      "outputTokens": 101,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "bikes-and-batteries#5",
+            "score": 0.041
+          },
+          {
+            "n": 2,
+            "chunkId": "bikes-and-batteries#6",
+            "score": 0.001
+          },
+          {
+            "n": 3,
+            "chunkId": "bikes-and-batteries#4",
+            "score": 0
+          },
+          {
+            "n": 4,
+            "chunkId": "bikes-and-batteries#3",
+            "score": 0
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "It's freezing outside. Will the battery run out sooner?"
+      },
+      "judge": {
+        "reason": "Correctness: 5 — The answer matches the reference exactly: yes, below 5 °C the battery holds less charge and range drops by about a quarter. Relevance: 5 — It directly answers the question with no unnecessary additions. Clarity: 5 — Concise, well organized, and easy to follow. Faithfulness: 5 — Every claim is supported by source 1, which is properly cited.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "move-away",
+      "category": "answerable",
+      "input": "I'm relocating to another country for work. Do I still have to give two weeks' notice?",
+      "promptId": "structured",
+      "answer": "No. If you move outside Kestrel’s delivery area, the company collects the bike and ends your membership without the usual notice period [1].",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 8851,
+      "inputTokens": 812,
+      "outputTokens": 357,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "delivery-and-returns#5",
+            "score": 0
+          },
+          {
+            "n": 2,
+            "chunkId": "memberships#4",
+            "score": 0
+          },
+          {
+            "n": 3,
+            "chunkId": "memberships#6",
+            "score": 0
+          },
+          {
+            "n": 4,
+            "chunkId": "memberships#5",
+            "score": 0
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "I'm relocating to another country for work. Do I still have to give two weeks' notice?"
+      },
+      "judge": {
+        "reason": "The answer directly and correctly states that no notice is required when moving outside the delivery area, matching both the reference and Source 1. It is concise, relevant, and well-organized. Every claim is supported by Source 1, which is properly cited. There are no errors, omissions, or unsupported claims.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "beach-ride",
+      "category": "answerable",
+      "input": "Is it fine to ride along the sand by the sea?",
+      "promptId": "structured",
+      "answer": "No. Kestrel bikes must not be used on beaches, because sand and salt water damage the motor [1].",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 1947,
+      "inputTokens": 773,
+      "outputTokens": 106,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "riding-rules#4",
+            "score": 0.003
+          },
+          {
+            "n": 2,
+            "chunkId": "riding-rules#5",
+            "score": 0
+          },
+          {
+            "n": 3,
+            "chunkId": "theft-and-accidents#3",
+            "score": 0
+          },
+          {
+            "n": 4,
+            "chunkId": "riding-rules#0",
+            "score": 0
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "Is it fine to ride along the sand by the sea?"
+      },
+      "judge": {
+        "reason": "The answer directly matches the reference: it says no, explains that Kestrel bikes must not be used on beaches because sand and salt water damage the motor, and cites source [1], which contains exactly that information. It is concise, answers exactly what was asked, and every claim is supported by the sources.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "pedestrian-claim",
+      "category": "answerable",
+      "input": "I knocked someone over while riding and they want compensation. Who pays?",
+      "promptId": "structured",
+      "answer": "Kestrel's insurance covers your legal liability up to €1,000,000 if you injure someone while riding a Kestrel bike [1].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "1,000,000",
+              "1 000 000",
+              "1000000",
+              "1 million"
+            ]
+          },
+          "label": "Mentions one of: 1,000,000, 1 000 000, 1000000, 1 million",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 4381,
+      "inputTokens": 789,
+      "outputTokens": 156,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "theft-and-accidents#4",
+            "score": 0.288
+          },
+          {
+            "n": 2,
+            "chunkId": "repairs-and-maintenance#4",
+            "score": 0
+          },
+          {
+            "n": 3,
+            "chunkId": "riding-rules#0",
+            "score": 0
+          },
+          {
+            "n": 4,
+            "chunkId": "riding-rules#1",
+            "score": 0
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "I knocked someone over while riding and they want compensation. Who pays?"
+      },
+      "judge": {
+        "reason": "The answer correctly identifies that Kestrel's insurance covers the rider's legal liability up to €1,000,000 for injuring someone while riding a Kestrel bike, which matches the reference and source 1. It directly answers who pays without adding irrelevant details, is concise and easy to follow, and every claim is supported by source 1.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "own-saddle",
+      "category": "answerable",
+      "input": "Can I swap the seat for a comfier one I already own?",
+      "promptId": "structured",
+      "answer": "The help centre does not cover whether you can swap the seat for your own. You’ll need to contact Kestrel support for a definitive answer.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAny",
+            "values": [
+              "mechanic"
+            ]
+          },
+          "label": "Mentions one of: mechanic",
+          "passed": false
+        }
+      ],
+      "checksPassed": false,
+      "latencyMs": 3534,
+      "inputTokens": 847,
+      "outputTokens": 162,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "bikes-and-batteries#4",
+            "score": 0.001
+          },
+          {
+            "n": 2,
+            "chunkId": "memberships#4",
+            "score": 0
+          },
+          {
+            "n": 3,
+            "chunkId": "app-and-account#4",
+            "score": 0
+          },
+          {
+            "n": 4,
+            "chunkId": "theft-and-accidents#3",
+            "score": 0
+          }
+        ],
+        "hasEvidence": true,
+        "cited": [],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "Can I swap the seat for a comfier one I already own?"
+      },
+      "judge": {
+        "reason": "The reference states that you cannot swap the seat yourself and that a different saddle must be fitted by Kestrel's mechanics. The assistant instead claims the help centre does not cover this and tells the user to contact support, which contradicts the reference. The answer therefore fails to answer the question and is incorrect against the reference. It is, however, clearly written. For faithfulness, none of the four provided sources mention seat or saddle swapping, so the assistant's claim that the sources do not cover it is supported; no claim contradicts the sources.",
+        "correctness": 1,
+        "relevance": 1,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 47
+    },
+    {
+      "caseId": "followup-deposit",
+      "category": "follow-up",
+      "input": "Do I get the deposit back at the end, and how quickly?",
+      "promptId": "structured",
+      "answer": "Yes. The Family plan has a refundable deposit of €100, which is returned within 10 working days after the bike is collected undamaged [1].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "10"
+            ]
+          },
+          "label": "Mentions all of: 10",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 4060,
+      "inputTokens": 861,
+      "outputTokens": 109,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 3,
+        "sentMessages": 3,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "memberships#3",
+            "score": 0.439
+          },
+          {
+            "n": 2,
+            "chunkId": "delivery-and-returns#4",
+            "score": 0.001
+          },
+          {
+            "n": 3,
+            "chunkId": "memberships#6",
+            "score": 0
+          },
+          {
+            "n": 4,
+            "chunkId": "memberships#7",
+            "score": 0
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "Do I get the deposit back at the end, and how quickly?"
+      },
+      "judge": {
+        "reason": "The answer correctly states that the Family plan's €100 deposit is refundable and returned within 10 working days after the bike is back undamaged, matching the reference and Source 1. It answers exactly what was asked with no extra content, and is concise and clear. Every claim is supported by the sources (Source 1 for the deposit terms; Source 2 confirms the bike is collected), so it is fully faithful.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "followup-range",
+      "category": "follow-up",
+      "input": "How far does it go on one charge?",
+      "promptId": "structured",
+      "answer": "The K2 cargo bike has a range of about 55 km with an empty box and 40 km when fully loaded [1].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "55"
+            ]
+          },
+          "label": "Mentions all of: 55",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2876,
+      "inputTokens": 953,
+      "outputTokens": 99,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 3,
+        "sentMessages": 3,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "bikes-and-batteries#2",
+            "score": 0.991
+          },
+          {
+            "n": 2,
+            "chunkId": "riding-rules#3",
+            "score": 0.962
+          },
+          {
+            "n": 3,
+            "chunkId": "bikes-and-batteries#1",
+            "score": 0.642
+          },
+          {
+            "n": 4,
+            "chunkId": "memberships#1",
+            "score": 0.289
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "How far does the K2 cargo bike go on one charge?"
+      },
+      "judge": {
+        "reason": "The answer correctly states the K2 cargo bike’s range as about 55 km with an empty box and 40 km fully loaded, matching the reference exactly. It directly answers the question without adding irrelevant information, is concise and easy to follow, and the claim is fully supported by source 1, which it cites.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "followup-student",
+      "category": "follow-up",
+      "input": "And if I'm still at college?",
+      "promptId": "structured",
+      "answer": "Students with a valid Port Aven college card get 20 % off the Commuter plan, bringing it to €23.20 a month. The discount is verified once a year [1, 3].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "20"
+            ]
+          },
+          "label": "Mentions all of: 20",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 4509,
+      "inputTokens": 844,
+      "outputTokens": 161,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 3,
+        "sentMessages": 3,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "memberships#2",
+            "score": 0.519
+          },
+          {
+            "n": 2,
+            "chunkId": "memberships#3",
+            "score": 0.277
+          },
+          {
+            "n": 3,
+            "chunkId": "memberships#1",
+            "score": 0.01
+          },
+          {
+            "n": 4,
+            "chunkId": "memberships#6",
+            "score": 0.008
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1,
+          3
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "What is the cost of the Commuter plan if I'm still at college?"
+      },
+      "judge": {
+        "reason": "The answer correctly states that Port Aven college students get 20% off and that the discount is checked once a year, and it correctly calculates the Commuter price as €23.20/month (€29 × 0.8). However, the reference and Source 1 say the discount applies to both the Commuter and Annual Commuter plans; the answer only mentions the Commuter plan, so an important point from the reference is missing. It answers the question directly with no irrelevant padding and is easy to follow. Every claim made is supported by Sources 1 and 3 (20% discount, annual check, €29 base price), so it is faithful to the sources.",
+        "correctness": 3,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 87
+    },
+    {
+      "caseId": "followup-theft-late",
+      "category": "follow-up",
+      "input": "What if I only get round to it the day after tomorrow?",
+      "promptId": "structured",
+      "answer": "If you report it more than 24 hours after noticing it missing, the theft excess rises to €400 [1]. The standard €80 excess only applies when you report within 24 hours and the bike was locked with both locks to a fixed object [2].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "400"
+            ]
+          },
+          "label": "Mentions all of: 400",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 3748,
+      "inputTokens": 916,
+      "outputTokens": 142,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 3,
+        "sentMessages": 3,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "theft-and-accidents#2",
+            "score": 0.929
+          },
+          {
+            "n": 2,
+            "chunkId": "theft-and-accidents#1",
+            "score": 0.839
+          },
+          {
+            "n": 3,
+            "chunkId": "theft-and-accidents#3",
+            "score": 0.083
+          },
+          {
+            "n": 4,
+            "chunkId": "app-and-account#5",
+            "score": 0.081
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 1,
+        "cited": [
+          1,
+          2
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "What if I only get round to reporting the stolen bike the day after tomorrow?"
+      },
+      "judge": {
+        "reason": "Correctness: 5 — The answer correctly states that reporting more than 24 hours late raises the theft excess to €400, matching the reference and source 1. The added detail about the €80 excess requiring both locks and a report within 24 hours is also correct per source 2.\nRelevance: 5 — It directly addresses the scenario of reporting “the day after tomorrow,” i.e., more than 24 hours late.\nClarity: 5 — Concise, well organized, and easy to follow with no padding.\nFaithfulness: 5 — Every claim is supported by the cited sources ([1] and [2]); nothing is unsupported or contradicted.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "wrong-price",
+      "category": "false-premise",
+      "input": "Why does the Commuter plan cost €35 a month?",
+      "promptId": "structured",
+      "answer": "The Commuter plan actually costs €29 a month, not €35 [2]. Students with a valid Port Aven college card can get 20% off the Commuter and Annual Commuter plans [4].",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "29"
+            ]
+          },
+          "label": "Mentions all of: 29",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 8820,
+      "inputTokens": 809,
+      "outputTokens": 183,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "memberships#3",
+            "score": 0.906
+          },
+          {
+            "n": 2,
+            "chunkId": "memberships#1",
+            "score": 0.645
+          },
+          {
+            "n": 3,
+            "chunkId": "memberships#6",
+            "score": 0.306
+          },
+          {
+            "n": 4,
+            "chunkId": "memberships#2",
+            "score": 0.003
+          }
+        ],
+        "hasEvidence": true,
+        "evidenceRank": 2,
+        "cited": [
+          2,
+          4
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "Why does the Commuter plan cost €35 a month?"
+      },
+      "judge": {
+        "reason": "The answer correctly refutes the false premise: the Commuter plan is €29 a month, not €35, which matches source 2 and the reference. It adds one brief sentence about the student discount from source 4, which is supported but not required by the question; this is not enough to count as 'a lot' of unasked material. Every claim is backed by the cited sources, and the response is concise and easy to follow.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "buy-bike",
+      "category": "not-covered",
+      "input": "How much would it cost to buy a K1 outright?",
+      "promptId": "structured",
+      "answer": "The help centre does not cover the outright purchase price of a K1 city bike; it only lists subscription plans that include the bike [1]. You would need to contact Kestrel support for that information.",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 3023,
+      "inputTokens": 873,
+      "outputTokens": 214,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "memberships#1",
+            "score": 0.319
+          },
+          {
+            "n": 2,
+            "chunkId": "bikes-and-batteries#1",
+            "score": 0.009
+          },
+          {
+            "n": 3,
+            "chunkId": "riding-rules#3",
+            "score": 0.005
+          },
+          {
+            "n": 4,
+            "chunkId": "theft-and-accidents#5",
+            "score": 0
+          }
+        ],
+        "hasEvidence": false,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "How much would it cost to buy a K1 outright?"
+      },
+      "judge": {
+        "reason": "The answer correctly states that the help centre does not provide an outright purchase price for the K1, notes that only subscription plans are listed [1], and suggests contacting Kestrel support. This fully agrees with the reference, which says a good answer should admit the help centre does not say and may suggest contacting Kestrel, without inventing a price. It answers exactly what was asked with no extra padding, is clear and concise, and every claim is supported by the sources (Source 1 shows only subscription plans; no source lists an outright price).",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "holiday-hours",
+      "category": "not-covered",
+      "input": "Is the depot open on public holidays?",
+      "promptId": "structured",
+      "answer": "The help centre does not state whether the depot is open on public holidays. It only lists regular hours (Monday–Saturday, 8:00–18:00) and notes that the depot is closed on Sundays [1]. For public holiday hours, you would need to contact Kestrel support.",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 6622,
+      "inputTokens": 849,
+      "outputTokens": 227,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "about-and-contact#2",
+            "score": 0.787
+          },
+          {
+            "n": 2,
+            "chunkId": "delivery-and-returns#4",
+            "score": 0.003
+          },
+          {
+            "n": 3,
+            "chunkId": "delivery-and-returns#2",
+            "score": 0.001
+          },
+          {
+            "n": 4,
+            "chunkId": "memberships#5",
+            "score": 0
+          }
+        ],
+        "hasEvidence": false,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "Is the depot open on public holidays?"
+      },
+      "judge": {
+        "reason": "The answer correctly states that the help centre does not say whether the depot is open on public holidays, accurately restates the regular hours and Sunday closure from source 1, and does not invent any policy, price, or number. It directly answers the question without extra padding, and suggesting contact with Kestrel is appropriate and not contradicted by the sources. Every factual claim is supported by the sources.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "battery-capacity",
+      "category": "not-covered",
+      "input": "What is the battery capacity of the K1 in watt-hours?",
+      "promptId": "structured",
+      "answer": "The help centre does not specify the battery capacity of the K1 in watt-hours. It only provides range estimates (about 70 km in standard assist mode and 45 km in boost mode) [1]. For exact capacity details, you would need to contact Kestrel support.",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 14542,
+      "inputTokens": 857,
+      "outputTokens": 210,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "bikes-and-batteries#1",
+            "score": 0.738
+          },
+          {
+            "n": 2,
+            "chunkId": "bikes-and-batteries#2",
+            "score": 0.001
+          },
+          {
+            "n": 3,
+            "chunkId": "riding-rules#3",
+            "score": 0.001
+          },
+          {
+            "n": 4,
+            "chunkId": "about-and-contact#4",
+            "score": 0
+          }
+        ],
+        "hasEvidence": false,
+        "cited": [
+          1
+        ],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "What is the battery capacity of the K1 in watt-hours?"
+      },
+      "judge": {
+        "reason": "The answer correctly states that the sources do not provide the K1's battery capacity in watt-hours, matching the reference. It accurately reports the range figures from source 1 (about 70 km standard assist, 45 km boost) and appropriately suggests contacting Kestrel without inventing any numbers. It directly answers the question, is concise and well organized, and every claim is supported by the provided sources.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "referral",
+      "category": "not-covered",
+      "input": "Do I get a discount if I refer a friend?",
+      "promptId": "structured",
+      "answer": "The help centre does not cover referral discounts. You would need to contact Kestrel support to ask about any referral programme.",
+      "checks": [],
+      "checksPassed": true,
+      "latencyMs": 4774,
+      "inputTokens": 802,
+      "outputTokens": 240,
+      "costUsd": 0,
+      "rag": {
+        "sources": [
+          {
+            "n": 1,
+            "chunkId": "memberships#2",
+            "score": 0
+          },
+          {
+            "n": 2,
+            "chunkId": "memberships#5",
+            "score": 0
+          },
+          {
+            "n": 3,
+            "chunkId": "delivery-and-returns#4",
+            "score": 0
+          },
+          {
+            "n": 4,
+            "chunkId": "delivery-and-returns#3",
+            "score": 0
+          }
+        ],
+        "hasEvidence": false,
+        "cited": [],
+        "invalidCitations": [],
+        "searched": true,
+        "query": "Do I get a discount if I refer a friend?"
+      },
+      "judge": {
+        "reason": "The answer correctly states that the help centre does not cover referral discounts and suggests contacting Kestrel support, which aligns perfectly with the reference. It does not invent any policy, price, or number. It directly answers the question without extra padding, making it clear and concise. Every claim is supported by the provided sources, none of which mention a referral programme.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "thanks",
+      "category": "small-talk",
+      "input": "Thanks, that's really helpful!",
+      "promptId": "structured",
+      "answer": "You’re welcome.",
+      "checks": [
+        {
+          "check": {
+            "type": "maxWords",
+            "value": 60
+          },
+          "label": "At most 60 words",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2527,
+      "inputTokens": 538,
+      "outputTokens": 44,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 3,
+        "sentMessages": 3,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "rag": {
+        "sources": [],
+        "hasEvidence": false,
+        "cited": [],
+        "invalidCitations": [],
+        "searched": false,
+        "query": "Thanks, that's really helpful!"
+      },
+      "judge": {
+        "reason": "The answer “You’re welcome.” is short, friendly, and asks for nothing new, matching the reference exactly. It introduces no policy, price, or number, and does not claim the help centre lacks coverage. It is perfectly clear and needs no sources, so it is fully supported by the (empty) source set.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "greeting",
+      "category": "small-talk",
+      "input": "Hi there!",
+      "promptId": "structured",
+      "answer": "Hi! How can I help you with Kestrel Cycle Club today?",
+      "checks": [
+        {
+          "check": {
+            "type": "maxWords",
+            "value": 80
+          },
+          "label": "At most 80 words",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 3111,
+      "inputTokens": 491,
+      "outputTokens": 51,
+      "costUsd": 0,
+      "rag": {
+        "sources": [],
+        "hasEvidence": false,
+        "cited": [],
+        "invalidCitations": [],
+        "searched": false,
+        "query": "Hi there!"
+      },
+      "judge": {
+        "reason": "The answer is a short, friendly reply to a greeting that offers help with Kestrel Cycle Club, exactly matching the reference. It adds no policy, price, or number, does not say the help centre does not cover something, and needs no sources. It is clear, directly relevant, and makes no unsupported factual claims.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "one-sentence",
+      "category": "small-talk",
+      "input": "Can you put that in one sentence?",
+      "promptId": "structured",
+      "answer": "The Family plan requires a €100 refundable deposit (returned within 10 working days after the cargo bike is returned undamaged), while the other plans have no deposit.",
+      "checks": [
+        {
+          "check": {
+            "type": "includesAll",
+            "values": [
+              "100"
+            ]
+          },
+          "label": "Mentions all of: 100",
+          "passed": true
+        },
+        {
+          "check": {
+            "type": "maxWords",
+            "value": 50
+          },
+          "label": "At most 50 words",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 4243,
+      "inputTokens": 568,
+      "outputTokens": 90,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 3,
+        "sentMessages": 3,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "rag": {
+        "sources": [],
+        "hasEvidence": false,
+        "cited": [],
+        "invalidCitations": [],
+        "searched": false,
+        "query": "Can you put that in one sentence?"
+      },
+      "judge": {
+        "reason": "The answer is a single sentence that restates the earlier answer exactly as the reference requires: Family plan has a refundable €100 deposit returned within 10 working days after the bike comes back undamaged, and the other plans have no deposit. It is concise, directly answers the request, and adds nothing extra. Every claim matches the reference, and the reference explicitly notes the facts come from the earlier answer so no new sources are needed.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    },
+    {
+      "caseId": "ok",
+      "category": "small-talk",
+      "input": "ok cool",
+      "promptId": "structured",
+      "answer": "Glad that helps.",
+      "checks": [
+        {
+          "check": {
+            "type": "maxWords",
+            "value": 60
+          },
+          "label": "At most 60 words",
+          "passed": true
+        }
+      ],
+      "checksPassed": true,
+      "latencyMs": 2000,
+      "inputTokens": 536,
+      "outputTokens": 47,
+      "costUsd": 0,
+      "context": {
+        "totalMessages": 3,
+        "sentMessages": 3,
+        "summarized": false,
+        "summaryFailed": false,
+        "summaryInputTokens": 0,
+        "summaryOutputTokens": 0
+      },
+      "rag": {
+        "sources": [],
+        "hasEvidence": false,
+        "cited": [],
+        "invalidCitations": [],
+        "searched": false,
+        "query": "ok cool"
+      },
+      "judge": {
+        "reason": "The answer is short, friendly, and asks for nothing new, matching the reference exactly. It adds no policy, price, or number, and does not say the help centre does not cover something. It is clear and directly relevant to the casual question. Because it makes no factual claims, it introduces nothing unsupported by the sources.",
+        "correctness": 5,
+        "relevance": 5,
+        "clarity": 5,
+        "faithfulness": 5
+      },
+      "quality": 100
+    }
+  ]
+}

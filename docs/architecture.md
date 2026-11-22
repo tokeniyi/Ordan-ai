@@ -23,8 +23,8 @@ features/
     types.ts            The message types shared by the route and the UI.
   history/              Saved chats, the chat list, and fitting the history into a token budget.
   prompts/              The versioned prompt library and the prompt builder.
-  rag/                  Retrieval for the chat, the grounding prompt, citations, and the Sources and Inline Citation components.
-  search/               Chunking, embeddings, the vector store, BM25 and retrieval metrics.
+  rag/                  Retrieval for the chat: the query planner, HyDE and multi-query (query.ts), the pipeline that combines them with search and reranking (pipeline.ts), the grounding prompt, citations, and the Chain of Thought, Sources and Inline Citation components.
+  search/               Chunking, embeddings, the vector store, BM25, hybrid search (rank fusion), reranking and retrieval metrics.
   suggestions/          Follow-up questions, generated as structured output.
   compare/              The side-by-side prompt comparison.
   evals/                Test sets, checks, the LLM judge, the runner and the results page.
@@ -35,8 +35,9 @@ data/index/             One search index per chunking strategy, built by `pnpm i
 scripts/eval.ts         Runs the evaluation from the command line.
 scripts/build-index.ts  Chunks and embeds the corpus.
 scripts/eval-retrieval.ts  Measures recall@k and MRR for every strategy.
+scripts/eval-pipelines.ts  Measures the retrieval pipelines: planning, HyDE, multi-query, hybrid search and reranking.
 lib/
-  ai/provider.ts        The Kilo AI Gateway client and the local embedding model. The only file that knows the providers.
+  ai/provider.ts        The Kilo AI Gateway client and the local embedding and reranking models. The only file that knows the providers.
   ai/models.ts          The models the picker offers and the route accepts.
 docs/                   This folder.
 ```
@@ -44,8 +45,8 @@ docs/                   This folder.
 ## How a message flows
 
 1. `features/chat/components/chat.tsx` sends the messages, the chosen model, the chosen prompt id, the knowledge base (none or the Kestrel help centre) and the history settings (strategy and the last summary) to `/api/chat` with `useChat`.
-2. `app/api/chat/route.ts` checks the model against `lib/ai/models.ts`, validates the messages and builds the prompt with `features/prompts`. With the Kestrel help centre on, it retrieves the closest chunks for the newest question with `features/rag/kestrel.ts`, adds them to the system prompt with `features/rag/prompt.ts`, and strips old citations from earlier answers. Then it fits the history into the budget with `features/history/prepare.ts` (trimming or summarizing old turns), and calls `streamText` with the model from `lib/ai/provider.ts`.
-3. The reply streams back as typed parts. `chat-message.tsx` switches on the part type and renders each one with a component from `components/parts/`. The message metadata says what was done with the history, which sources the reply was given, and how many tokens it used. Citations such as [1] in the text become inline citations, and a Sources line lists the passages.
+2. `app/api/chat/route.ts` checks the model against `lib/ai/models.ts`, validates the messages and builds the prompt with `features/prompts`. With the Kestrel help centre on, `features/rag/kestrel.ts` runs the retrieval pipeline: a model call decides whether the newest message needs a search and rewrites it as a standalone question, then semantic search finds 20 candidates and a local reranker keeps the best 4. The route adds them to the system prompt with `features/rag/prompt.ts` (or a note that no search was run), and strips old citations from earlier answers. Then it fits the history into the budget with `features/history/prepare.ts` (trimming or summarizing old turns), and calls `streamText` with the model from `lib/ai/provider.ts`.
+3. The reply streams back as typed parts. `chat-message.tsx` switches on the part type and renders each one with a component from `components/parts/`. The message metadata says what was done with the history, the retrieval steps and the sources the reply was given, and how many tokens it used. Citations such as [1] in the text become inline citations, and a Sources line lists the passages.
 4. When the reply finishes, `features/suggestions` asks `/api/suggestions` for follow-up questions and shows them above the input, and the chat is saved to the browser's localStorage by `features/history/store.ts`.
 
 ## How a search flows
@@ -54,7 +55,7 @@ docs/                   This folder.
 2. `/search` sends the query, the strategy and the method to `/api/search`.
 3. The route loads the index file, embeds the query with the same model, and ranks every chunk by cosine similarity, or by BM25 for keyword search (`features/search/search.ts`).
 
-The chat uses the same search for RAG, always with recursive chunks with headings and semantic search (`features/rag/config.ts`).
+The chat uses the same index for RAG, with recursive chunks with headings, and the settings in `RAG_SETTINGS` (`features/rag/config.ts`): query planning, semantic search and reranking. `/search` shows semantic, keyword and hybrid results side by side.
 
 ## Rules
 
@@ -87,3 +88,4 @@ Because each feature connects at one place, turning it off is a one-line change,
 - `pnpm test` runs unit tests with Vitest. They cover code that does not call a model, so they are fast and free.
 - `pnpm eval` runs the evaluation against real models. See [evals.md](evals.md).
 - `pnpm eval:retrieval` measures search on the Kestrel corpus. It runs the embedding model locally, so it is free.
+- `pnpm eval:pipelines` measures the retrieval pipelines. Search and reranking are local; query planning and expansion call the eval model and are cached.
