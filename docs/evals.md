@@ -102,7 +102,7 @@ To add a whole new test set, create a file next to `core.ts` and add it to `data
 
 ## Retrieval evals
 
-`pnpm eval:retrieval` measures search, not answers. It runs the 24 questions in `features/search/eval/cases.ts` against every chunking strategy, with semantic and keyword search, and saves a report to `evals/retrieval/`. The embedding model runs locally, so it costs nothing and takes a few seconds. It does not use the Kilo rate limit.
+`pnpm eval:retrieval` measures search, not answers. It runs the 48 questions in `features/search/eval/cases.ts` against every chunking strategy, with semantic and keyword search, and saves a report to `evals/retrieval/`. The embedding model runs locally, so it costs nothing and takes a few seconds. It does not use the Kilo rate limit.
 
 Each question names the passage that answers it. A chunk is relevant when it contains the whole passage. The report shows:
 
@@ -114,7 +114,7 @@ To add a question, add an entry with its `docId` and `evidence`, a short passage
 
 ## RAG evals
 
-The `rag` test set has 20 questions about the Kestrel help centre (`features/evals/datasets/rag.ts`): 13 it answers, 2 follow-ups, 1 with a wrong fact in the question, and 4 it does not cover, where a good answer says so. The set has `knowledge: "kestrel"`, so a run retrieves sources for each question with the same code as the chat and adds them to the system prompt. `--knowledge none` asks the same questions without sources, which is the "before":
+The `rag` test set has 32 cases about the Kestrel help centre (`features/evals/datasets/rag.ts`): 19 questions it answers, 4 follow-ups, 1 with a wrong fact in the question, 4 it does not cover, where a good answer says so, and 4 small-talk messages that need no search, added in phase 6. The set has `knowledge: "kestrel"`, so a run retrieves sources for each question with the same code as the chat and adds them to the system prompt. `--knowledge none` asks the same questions without sources, which is the "before":
 
 ```bash
 pnpm eval --dataset rag --prompts structured --knowledge none
@@ -127,7 +127,17 @@ Besides the usual scores, a run with sources reports:
 - **Faithful:** the judge's mean faithfulness score, 1 to 5.
 - **Cited:** answers with at least one citation such as [1], and how many citations pointed at a source that was not given.
 
-`features/evals/datasets/rag.test.ts` fails if a case's passage is not in its page, or not whole in a chunk of the index the chat uses. Retrieval runs locally and is not cached. The answer's cache key includes the sources, because they are in the system prompt.
+`features/evals/datasets/rag.test.ts` fails if a case's passage is not in its page, or not whole in a chunk of the index the chat uses. Search runs locally and is not cached. The query planner's calls are cached, and the answer's cache key includes the sources, because they are in the system prompt.
+
+## Retrieval pipeline evals
+
+`pnpm eval:pipelines` measures the phase 6 retrieval pipelines (`features/rag/eval/run.ts`) on the 48 retrieval questions, with the `recursive-headings` index. Each pipeline turns on some of these techniques: query planning, HyDE, multi-query, hybrid search and reranking. It reports recall@k (with k = 4, the number of sources the chat gives the model), MRR overall and for paraphrased, keyword and follow-up questions, and the rank per question.
+
+The questions in `features/search/eval/cases.ts` can have a `history`, the turns before them, so follow-ups can be measured. `NO_SEARCH_CASES` lists 8 messages that need no search, such as "thanks" or "put that in one sentence". For pipelines with a planner, the report counts how many of them it skipped, and how many real questions it wrongly skipped.
+
+Search and reranking run locally. Planning and expansion call the eval model, about 150 calls for a full run, and the replies are cached in `evals/.cache/` with how long they took, so a run stopped by the rate limit resumes and a cached run still reports real latency. The eval runner caches the same calls under the same key, so `pnpm eval --dataset rag` reuses them.
+
+The RAG eval's report has a Searched column: how many messages the planner sent to the search.
 
 ## Compare runs fairly
 

@@ -21,6 +21,9 @@ import {
 export function Sources({ rag }: { rag: RagInfo }) {
   const { sources } = rag
 
+  // The steps above already say that no search was run.
+  if (rag.searched === false) return null
+
   if (sources.length === 0) {
     return (
       <Trace>

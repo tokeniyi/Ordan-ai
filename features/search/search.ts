@@ -1,3 +1,4 @@
+import { reciprocalRankFusion } from "@/features/search/fusion"
 import { createKeywordIndex } from "@/features/search/keyword"
 import { cosine, topK } from "@/features/search/vectors"
 import {
@@ -39,20 +40,33 @@ export async function search({
   k?: number
   embedQuery: EmbedQuery
 }): Promise<SearchHit[]> {
-  let scores: number[]
-  if (method === "semantic") {
+  const semantic = async () => {
     const vector = await embedQuery(query)
-    scores = index.chunks.map((chunk) => cosine(vector, chunk.vector))
-  } else {
-    let keyword = keywordIndexes.get(index)
-    if (!keyword) {
-      keyword = createKeywordIndex(index.chunks)
-      keywordIndexes.set(index, keyword)
+    return index.chunks.map((chunk) => cosine(vector, chunk.vector))
+  }
+  const keyword = () => {
+    let keywordIndex = keywordIndexes.get(index)
+    if (!keywordIndex) {
+      keywordIndex = createKeywordIndex(index.chunks)
+      keywordIndexes.set(index, keywordIndex)
     }
-    scores = keyword.score(query)
+    return keywordIndex.score(query)
   }
 
-  return topK(scores, k).map(({ score, index: position }, rank) => ({
+  let ranked: { score: number; index: number }[]
+  if (method === "hybrid") {
+    // Every chunk the two methods score above zero takes part, not only
+    // their top k, so a chunk ranked 12th by both can still come out on top.
+    const all = index.chunks.length
+    const rankings = [await semantic(), keyword()].map((scores) =>
+      topK(scores, all).map((hit) => hit.index)
+    )
+    ranked = reciprocalRankFusion(rankings).slice(0, k)
+  } else {
+    ranked = topK(method === "semantic" ? await semantic() : keyword(), k)
+  }
+
+  return ranked.map(({ score, index: position }, rank) => ({
     rank: rank + 1,
     score: Math.round(score * 1000) / 1000,
     chunk: withoutVector(index.chunks[position]),

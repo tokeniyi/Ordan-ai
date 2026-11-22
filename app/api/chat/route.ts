@@ -15,11 +15,13 @@ import { parseHistoryRequest } from "@/features/history/request"
 import { summarizeConversation } from "@/features/history/summarize"
 import { estimateModelMessageTokens } from "@/features/history/tokens"
 import { buildPrompt, DEFAULT_PROMPT_ID, getPrompt } from "@/features/prompts"
+import { completeWith } from "@/features/rag/complete"
 import { withoutOldCitations } from "@/features/rag/history"
 import { retrieveKestrel } from "@/features/rag/kestrel"
-import { withSources } from "@/features/rag/prompt"
+import { withoutSearch, withSources } from "@/features/rag/prompt"
+import { type Complete } from "@/features/rag/query"
 import { parseKnowledge } from "@/features/rag/request"
-import { retrievalQuery } from "@/features/rag/retrieve"
+import { conversationTurns } from "@/features/rag/retrieve"
 import { type RagInfo } from "@/features/rag/types"
 
 export const maxDuration = 30
@@ -91,18 +93,48 @@ export async function POST(req: Request) {
   const { examples, temperature } = built
   let system = built.system
 
-  // Retrieve passages for the newest question and put them in the system
-  // prompt. See features/rag.
+  // Decide whether to search, rewrite the question, retrieve passages and
+  // put them in the system prompt. See features/rag.
   let rag: RagInfo | undefined
   if (knowledge === "kestrel") {
-    const query = retrievalQuery(messages)
+    // A failed planning or expansion call must not fail the reply. An empty
+    // reply makes the pipeline search with the message as it is.
+    const model = completeWith(modelId, { abortSignal: req.signal })
+    const complete: Complete = async (request) => {
+      try {
+        return await model(request)
+      } catch (error) {
+        if (req.signal.aborted) throw error
+        console.error(error)
+        return ""
+      }
+    }
     try {
-      rag = { knowledge, query, ...(await retrieveKestrel(query)) }
+      const result = await retrieveKestrel({
+        turns: conversationTurns(messages),
+        complete,
+      })
+      rag = {
+        knowledge,
+        query: result.query,
+        searched: result.searched,
+        sources: result.sources,
+        steps: result.steps,
+        ms: result.ms,
+      }
     } catch (error) {
       console.error(error)
+      if (req.signal.aborted) {
+        return Response.json(
+          { error: "Request was cancelled." },
+          { status: 499 }
+        )
+      }
       return Response.json({ error: "Search failed." }, { status: 500 })
     }
-    system = withSources(system, rag.sources)
+    system = rag.searched
+      ? withSources(system, rag.sources)
+      : withoutSearch(system)
     messages = withoutOldCitations(messages)
   }
 

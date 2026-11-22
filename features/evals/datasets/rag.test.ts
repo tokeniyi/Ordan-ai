@@ -30,7 +30,7 @@ describe("rag dataset", async () => {
 
   it("names a passage for every case the help centre answers", () => {
     for (const testCase of rag.cases) {
-      const covered = testCase.category !== "not-covered"
+      const covered = !["not-covered", "small-talk"].includes(testCase.category)
       expect(Boolean(testCase.retrieval), testCase.id).toBe(covered)
     }
   })

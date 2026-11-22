@@ -37,6 +37,7 @@ async function main() {
       MRR: s.mrr,
       "MRR paraphrase": s.mrrByKind.paraphrase,
       "MRR keyword": s.mrrByKind.keyword,
+      "MRR follow-up": s.mrrByKind["follow-up"],
     }))
   )
 

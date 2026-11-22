@@ -75,6 +75,10 @@ export interface CaseRag {
   // Source numbers the answer cited, and those that do not exist.
   cited: number[]
   invalidCitations: number[]
+  // Whether the planner searched, and what with. Missing in runs from
+  // before phase 6, which always searched with the newest message.
+  searched?: boolean
+  query?: string
 }
 
 export interface CheckResult {
@@ -124,6 +128,9 @@ export interface RagSummary {
   citedAnswers: number
   answers: number
   invalidCitations: number
+  // Answers whose message was searched. Missing in runs from before phase 6,
+  // which searched every message.
+  searched?: number
 }
 
 export interface PromptSummary {

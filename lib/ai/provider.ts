@@ -91,3 +91,48 @@ export async function embeddingTokenCounter() {
   return (text: string) =>
     loaded.encode(text, { add_special_tokens: false }).length
 }
+
+// A cross-encoder trained on MS MARCO search queries. It reads a query and a
+// passage together and scores how well the passage answers it. About 90 MB,
+// downloaded and cached like the embedding model.
+export const RERANK_MODEL = "Xenova/ms-marco-MiniLM-L-6-v2"
+
+type CrossEncoder = {
+  tokenizer: (
+    queries: string[],
+    options: { text_pair: string[]; padding: boolean; truncation: boolean }
+  ) => unknown
+  model: (inputs: unknown) => Promise<{ logits: { tolist: () => unknown } }>
+}
+
+let crossEncoder: Promise<CrossEncoder> | undefined
+
+// Scores each text against the query, from 0 (unrelated) to 1. The model
+// gives a raw logit; a sigmoid turns it into a score that is easier to read.
+export async function rerankScores(
+  query: string,
+  texts: string[]
+): Promise<number[]> {
+  if (texts.length === 0) return []
+  crossEncoder ??= loadTransformers().then(
+    async ({ AutoTokenizer, AutoModelForSequenceClassification }) => ({
+      tokenizer: (await AutoTokenizer.from_pretrained(
+        RERANK_MODEL
+      )) as unknown as CrossEncoder["tokenizer"],
+      model: (await AutoModelForSequenceClassification.from_pretrained(
+        RERANK_MODEL,
+        { dtype: "fp32" }
+      )) as unknown as CrossEncoder["model"],
+    })
+  )
+  const { tokenizer, model } = await crossEncoder
+  const inputs = tokenizer(new Array(texts.length).fill(query), {
+    text_pair: texts,
+    padding: true,
+    truncation: true,
+  })
+  const { logits } = await model(inputs)
+  return (logits.tolist() as number[][]).map(
+    ([logit]) => 1 / (1 + Math.exp(-logit))
+  )
+}

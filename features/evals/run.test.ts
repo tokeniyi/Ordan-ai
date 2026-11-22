@@ -55,9 +55,13 @@ function fakeCalls(generate: EvalCalls["generate"]): EvalCalls {
       outputTokens: 10,
       costUsd: 0.01,
     })),
-    retrieve: vi.fn(async () => []),
+    retrieve: vi.fn(async () => ({ searched: true, query: "", sources: [] })),
+    complete: vi.fn(async () => ""),
   }
 }
+
+const searchedWith = (sources: typeof ragSources) =>
+  vi.fn(async () => ({ searched: true, query: "q", sources }))
 
 // A conversation long enough to be trimmed with a small budget: the name is
 // in the first turn, the question in the last.
@@ -308,7 +312,7 @@ function runRag(calls: EvalCalls, knowledge?: "none" | "kestrel") {
 describe("runEval with knowledge", () => {
   it("answers from the sources and scores retrieval and citations", async () => {
     const calls = fakeCalls(async () => answer("€29 a month [1]. See [5]."))
-    calls.retrieve = vi.fn(async () => ragSources)
+    calls.retrieve = searchedWith(ragSources)
     calls.judge = vi.fn(async () => ({
       correctness: 5,
       relevance: 5,
@@ -318,9 +322,9 @@ describe("runEval with knowledge", () => {
     }))
     const report = await runRag(calls)
 
-    expect(calls.retrieve).toHaveBeenCalledWith(
-      "What does the Commuter plan cost?"
-    )
+    expect(vi.mocked(calls.retrieve).mock.calls[0][0].turns).toEqual([
+      { role: "user", text: "What does the Commuter plan cost?" },
+    ])
     const input = vi.mocked(calls.generate).mock.calls[0][0]
     expect(input.system).toContain('<source id="1" title="Memberships">')
     expect(vi.mocked(calls.judge).mock.calls[0][0].sources).toEqual(ragSources)
@@ -335,6 +339,8 @@ describe("runEval with knowledge", () => {
       evidenceRank: 1,
       cited: [1, 5],
       invalidCitations: [5],
+      searched: true,
+      query: "q",
     })
     expect(report.summaries[0].rag).toEqual({
       evidenceCases: 1,
@@ -343,12 +349,13 @@ describe("runEval with knowledge", () => {
       citedAnswers: 3,
       answers: 3,
       invalidCitations: 3,
+      searched: 3,
     })
   })
 
   it("strips citations from earlier answers, as the chat does", async () => {
     const calls = fakeCalls(async () => answer("€29 [1]."))
-    calls.retrieve = vi.fn(async () => ragSources)
+    calls.retrieve = searchedWith(ragSources)
     await runRag(calls)
 
     const followUp = vi
@@ -358,6 +365,37 @@ describe("runEval with knowledge", () => {
       { role: "user", content: "Tell me about the Commuter plan." },
       { role: "assistant", content: "It includes the K1 bike." },
     ])
+  })
+
+  it("passes the turns before the question to the planner", async () => {
+    const calls = fakeCalls(async () => answer("€29 [1]."))
+    calls.retrieve = searchedWith(ragSources)
+    await runRag(calls)
+
+    const turns = vi
+      .mocked(calls.retrieve)
+      .mock.calls.map(([request]) => request.turns)
+      .find((t) => t.at(-1)?.text === "How much is it?")
+    expect(turns?.map((t) => t.role)).toEqual(["user", "assistant", "user"])
+  })
+
+  it("caches the retrieval model calls", async () => {
+    const calls = fakeCalls(async () => answer("Hello!"))
+    calls.complete = vi.fn(async () => "SEARCH: no\nQUERY: none")
+    calls.retrieve = vi.fn(async ({ complete }) => {
+      await complete({ system: "plan", prompt: "same" })
+      await complete({ system: "plan", prompt: "same" })
+      return { searched: false, query: "hi", sources: [] }
+    })
+    const report = await runRag(calls)
+
+    expect(calls.complete).toHaveBeenCalledTimes(1)
+    const input = vi.mocked(calls.generate).mock.calls[0][0]
+    expect(input.system).toContain("No search was run for this message")
+    expect(report.results[0].rag).toMatchObject({
+      searched: false,
+      sources: [],
+    })
   })
 
   it("asks the same questions without sources when knowledge is off", async () => {

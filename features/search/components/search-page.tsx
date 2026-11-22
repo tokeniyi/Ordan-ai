@@ -35,6 +35,10 @@ const METHOD_LABELS: Record<SearchMethod, { title: string; note: string }> = {
     title: "Keyword (BM25)",
     note: "Matches the words themselves, weighted by how rare they are.",
   },
+  hybrid: {
+    title: "Hybrid",
+    note: "Both lists merged by rank, so a chunk near the top of either rises.",
+  },
 }
 
 type Results = Record<SearchMethod, SearchHit[]>
@@ -74,10 +78,14 @@ export function SearchPage() {
     setIsLoading(true)
     setError(undefined)
     try {
-      const [semantic, keyword] = await Promise.all(
+      const lists = await Promise.all(
         SEARCH_METHODS.map((method) => fetchHits(trimmed, chunking, method))
       )
-      setResults({ semantic, keyword })
+      setResults(
+        Object.fromEntries(
+          SEARCH_METHODS.map((method, i) => [method, lists[i]])
+        ) as Results
+      )
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Search failed.")
     } finally {
@@ -162,7 +170,10 @@ export function SearchPage() {
         )}
 
         {results && (
-          <div className="grid gap-6 md:grid-cols-2" aria-busy={isLoading}>
+          <div
+            className="grid gap-6 md:grid-cols-2 xl:grid-cols-3"
+            aria-busy={isLoading}
+          >
             {SEARCH_METHODS.map((method) => (
               <section key={method} className="flex flex-col gap-3">
                 <div>

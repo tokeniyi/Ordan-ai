@@ -89,5 +89,9 @@ function summarizeRag(results: CaseResult[]): RagSummary {
       (sum, result) => sum + result.rag.invalidCitations.length,
       0
     ),
+    ...(withRag.some((result) => result.rag.searched !== undefined) && {
+      searched: withRag.filter((result) => result.rag.searched !== false)
+        .length,
+    }),
   }
 }

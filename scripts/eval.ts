@@ -204,6 +204,9 @@ async function main() {
         found: `${s.rag.evidenceFound}/${s.rag.evidenceCases}`,
         faithful: s.rag.faithfulness,
         cited: `${s.rag.citedAnswers}/${s.rag.answers}`,
+        ...(s.rag.searched !== undefined && {
+          searched: `${s.rag.searched}/${s.rag.answers}`,
+        }),
       }),
       latency: `${(s.avgLatencyMs / 1000).toFixed(1)}s`,
       errors: s.errors,

@@ -4,6 +4,11 @@ import { type Dataset } from "@/features/evals/types"
 const NOT_COVERED =
   "The Kestrel help centre does not cover this. A good answer says it does not know or that the help centre does not say, and may suggest contacting Kestrel. It must not invent a policy, price or number."
 
+// Messages that ask for nothing new. A good reply is short and friendly and
+// needs no search.
+const SMALL_TALK =
+  "A short, friendly reply that asks for nothing new. It needs no sources. It must not add a policy, price or number that was not in the conversation, and must not say the help centre does not cover something."
+
 // Questions about the made-up Kestrel Cycle Club. A model cannot know the
 // answers from training, so without sources it can only guess or say it does
 // not know. Every answerable case names the passage that answers it, so the
@@ -11,7 +16,7 @@ const NOT_COVERED =
 export const rag: Dataset = {
   id: "rag",
   description:
-    "Questions about the Kestrel help centre: answerable ones, follow-ups, questions it does not cover and one with a wrong fact.",
+    "Questions about the Kestrel help centre: answerable ones, follow-ups, questions it does not cover, one with a wrong fact, and small talk that needs no search.",
   knowledge: "kestrel",
   cases: [
     {
@@ -174,6 +179,84 @@ export const rag: Dataset = {
       },
     },
     {
+      id: "card-declined",
+      category: "answerable",
+      input: "My bank card has bounced twice this month. Can I still ride?",
+      reference:
+        "Not until the balance is paid. After two failed payment attempts the bike is locked remotely until the balance is paid.",
+      checks: [{ type: "includesAny", values: ["lock"] }],
+      retrieval: {
+        docId: "memberships",
+        evidence: "After two failed attempts the bike is locked remotely",
+      },
+    },
+    {
+      id: "winter-range",
+      category: "answerable",
+      input: "It's freezing outside. Will the battery run out sooner?",
+      reference:
+        "Yes. Below 5 °C, expect about a quarter less range than usual. Keeping the battery indoors overnight and fitting it just before riding helps.",
+      checks: [{ type: "includesAny", values: ["quarter", "25%", "25 %"] }],
+      retrieval: {
+        docId: "bikes-and-batteries",
+        evidence: "Below 5 °C, expect about a quarter less range than usual",
+      },
+    },
+    {
+      id: "move-away",
+      category: "answerable",
+      input:
+        "I'm relocating to another country for work. Do I still have to give two weeks' notice?",
+      reference:
+        "No. If you move outside the delivery area, Kestrel collects the bike and ends the membership without the usual notice period.",
+      retrieval: {
+        docId: "delivery-and-returns",
+        evidence:
+          "we collect the bike and end your membership without the usual notice period",
+      },
+    },
+    {
+      id: "beach-ride",
+      category: "answerable",
+      input: "Is it fine to ride along the sand by the sea?",
+      reference:
+        "No. Kestrel bikes must not be used on beaches, because sand and salt water damage the motor.",
+      retrieval: {
+        docId: "riding-rules",
+        evidence: "on beaches, because sand and salt water damage the motor",
+      },
+    },
+    {
+      id: "pedestrian-claim",
+      category: "answerable",
+      input:
+        "I knocked someone over while riding and they want compensation. Who pays?",
+      reference:
+        "Kestrel's insurance covers the member's legal liability up to €1,000,000 for injuring someone or damaging their property while riding a Kestrel bike. It does not cover the member's own injuries.",
+      checks: [
+        {
+          type: "includesAny",
+          values: ["1,000,000", "1 000 000", "1000000", "1 million"],
+        },
+      ],
+      retrieval: {
+        docId: "theft-and-accidents",
+        evidence: "legal liability up to €1,000,000",
+      },
+    },
+    {
+      id: "own-saddle",
+      category: "answerable",
+      input: "Can I swap the seat for a comfier one I already own?",
+      reference:
+        "Not by yourself. Anything that needs tools, such as a different saddle, must be fitted by Kestrel's mechanics. Clip-on accessories are fine.",
+      checks: [{ type: "includesAny", values: ["mechanic"] }],
+      retrieval: {
+        docId: "riding-rules",
+        evidence: "such as a different saddle, must be fitted by our mechanics",
+      },
+    },
+    {
       id: "followup-deposit",
       category: "follow-up",
       history: [
@@ -214,6 +297,47 @@ export const rag: Dataset = {
       },
     },
     {
+      id: "followup-student",
+      category: "follow-up",
+      history: [
+        { role: "user", content: "What does the Commuter plan cost?" },
+        {
+          role: "assistant",
+          content:
+            "The Commuter plan costs €29 a month and comes with the K1 city bike [1].",
+        },
+      ],
+      input: "And if I'm still at college?",
+      reference:
+        "Students with a valid card from a Port Aven college get 20% off the Commuter and Annual Commuter plans.",
+      checks: [{ type: "includesAll", values: ["20"] }],
+      retrieval: {
+        docId: "memberships",
+        evidence:
+          "Students with a valid card from a Port Aven college get 20% off",
+      },
+    },
+    {
+      id: "followup-theft-late",
+      category: "follow-up",
+      history: [
+        { role: "user", content: "My bike was stolen from outside my flat." },
+        {
+          role: "assistant",
+          content:
+            "Sorry to hear that. Report it to the police and get a crime reference number, then report it in the app within 24 hours of noticing, with the reference number [1].",
+        },
+      ],
+      input: "What if I only get round to it the day after tomorrow?",
+      reference:
+        "Reporting more than 24 hours late raises the theft excess from €80 to €400.",
+      checks: [{ type: "includesAll", values: ["400"] }],
+      retrieval: {
+        docId: "theft-and-accidents",
+        evidence: "more than 24 hours late, the excess is €400",
+      },
+    },
+    {
       id: "wrong-price",
       category: "false-premise",
       input: "Why does the Commuter plan cost €35 a month?",
@@ -248,6 +372,62 @@ export const rag: Dataset = {
       category: "not-covered",
       input: "Do I get a discount if I refer a friend?",
       reference: `${NOT_COVERED} Mentioning the 20% student discount as the only discount described is fine.`,
+    },
+    {
+      id: "thanks",
+      category: "small-talk",
+      history: [
+        { role: "user", content: "What does the weekend-only plan cost?" },
+        {
+          role: "assistant",
+          content:
+            "The Weekender plan costs €15 a month and covers the K1 city bike from Friday to Monday [1].",
+        },
+      ],
+      input: "Thanks, that's really helpful!",
+      reference: SMALL_TALK,
+      checks: [{ type: "maxWords", value: 60 }],
+    },
+    {
+      id: "greeting",
+      category: "small-talk",
+      input: "Hi there!",
+      reference: `${SMALL_TALK} Offering to help with questions about Kestrel is good.`,
+      checks: [{ type: "maxWords", value: 80 }],
+    },
+    {
+      id: "one-sentence",
+      category: "small-talk",
+      history: [
+        { role: "user", content: "Is there a deposit for the Family plan?" },
+        {
+          role: "assistant",
+          content:
+            "Yes. The Family plan has a refundable deposit of €100, because the cargo bike costs more to replace [1]. It is returned within 10 working days after the bike comes back undamaged [1]. The other plans have no deposit [1].",
+        },
+      ],
+      input: "Can you put that in one sentence?",
+      reference:
+        "One sentence restating the earlier answer: the Family plan has a refundable €100 deposit, returned within 10 working days after the bike comes back undamaged, and the other plans have no deposit. Every fact comes from the earlier answer, so it needs no new sources. It must not say the help centre does not cover it.",
+      checks: [
+        { type: "includesAll", values: ["100"] },
+        { type: "maxWords", value: 50 },
+      ],
+    },
+    {
+      id: "ok",
+      category: "small-talk",
+      history: [
+        { role: "user", content: "How long does a full charge take?" },
+        {
+          role: "assistant",
+          content:
+            "A full charge from empty takes about four and a half hours, and charging to 80% takes about three hours [1].",
+        },
+      ],
+      input: "ok cool",
+      reference: SMALL_TALK,
+      checks: [{ type: "maxWords", value: 60 }],
     },
   ],
 }

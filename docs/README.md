@@ -13,3 +13,4 @@
 | 3     | Conversation history | Done | [phase-03-conversation-history.md](phases/phase-03-conversation-history.md) |
 | 4     | NLP pipeline | Done | [phase-04-nlp-pipeline.md](phases/phase-04-nlp-pipeline.md) |
 | 5     | Basic RAG | Done | [phase-05-basic-rag.md](phases/phase-05-basic-rag.md) |
+| 6     | Advanced RAG | Done | [phase-06-advanced-rag.md](phases/phase-06-advanced-rag.md) |
