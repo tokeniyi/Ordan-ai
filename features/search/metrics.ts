@@ -9,8 +9,10 @@ export interface RetrievalCase {
   evidence: string
   // "paraphrase" questions avoid the document's words, "keyword" questions
   // reuse them. Semantic search should win the first, keyword search the
-  // second.
-  kind: "paraphrase" | "keyword"
+  // second. "follow-up" questions only make sense with the turns before.
+  kind: "paraphrase" | "keyword" | "follow-up"
+  // Earlier turns, oldest first, for follow-ups.
+  history?: { role: "user" | "assistant"; content: string }[]
 }
 
 const normalize = (text: string) =>

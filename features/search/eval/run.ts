@@ -101,6 +101,7 @@ export async function evaluateRetrieval({
         mrrByKind: {
           paraphrase: byKind("paraphrase"),
           keyword: byKind("keyword"),
+          "follow-up": byKind("follow-up"),
         },
       })
     }
@@ -119,10 +120,10 @@ export async function evaluateRetrieval({
 
 export function toMarkdown(report: RetrievalReport) {
   const header =
-    "| Chunking | Search | Chunks | Recall@1 | Recall@3 | Recall@5 | MRR | MRR, paraphrased | MRR, keyword |"
+    "| Chunking | Search | Chunks | Recall@1 | Recall@3 | Recall@5 | MRR | MRR, paraphrased | MRR, keyword | MRR, follow-up |"
   const rows = report.summaries.map(
     (s) =>
-      `| ${s.strategy} | ${s.method} | ${s.chunks} | ${s.recall[1]} | ${s.recall[3]} | ${s.recall[5]} | ${s.mrr} | ${s.mrrByKind.paraphrase} | ${s.mrrByKind.keyword} |`
+      `| ${s.strategy} | ${s.method} | ${s.chunks} | ${s.recall[1]} | ${s.recall[3]} | ${s.recall[5]} | ${s.mrr} | ${s.mrrByKind.paraphrase} | ${s.mrrByKind.keyword} | ${s.mrrByKind["follow-up"]} |`
   )
   const keys = Object.keys(report.ranks)
   const caseIds = Object.keys(report.ranks[keys[0]] ?? {})
@@ -144,7 +145,7 @@ export function toMarkdown(report: RetrievalReport) {
 A chunk is relevant when it contains the passage that answers the question. Recall@k is the share of questions with a relevant chunk in the top k. MRR is the mean of 1 / rank of the first relevant chunk, and 0 when none is in the top ${DEPTH}.
 
 ${header}
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 ${rows.join("\n")}
 
 ## Rank of the first relevant chunk
